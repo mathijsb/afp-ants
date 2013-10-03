@@ -88,10 +88,10 @@ gui myOptions =
       
       -- set layout  
       set rightPanel 
-         [layout := column 40 [empty, widget overviewPanel, widget controlPanel, widget scorePanel, empty]] 
+         [layout := margin 20 $ column 40 $ map hfill [widget overviewPanel, widget controlPanel, widget scorePanel]]
       
       set mainPanel
-         [layout := row 20 [ fill $ widget gameBoard, vfill $ widget rightPanel ]]
+         [layout := row 0 [ minsize (sz 800 700) $ fill $ widget gameBoard, vfill $ widget rightPanel ]]
       
       set myFrame [layout := fill (widget mainPanel)]
             
@@ -117,22 +117,22 @@ makeOverviewPanel myOptions w =
    do p <- panel w [bgcolor := white]
       -- create widgets
       scalingSlider   <- hslider p False 160 400 [selection := 230]  --  5  10  50  -- pixels     
-      roundNumberText <- staticText p [fontSize := 28, size := sz 40 20] 
+      roundNumberText <- staticText p [fontSize := 28, size := sz 40 40] 
       timeRemaining   <- staticText p [text := "unknown"]
       
-      redTeamName   <- staticText p [bgcolor := red, color := white, text := getRedTeam myOptions ]
-      blackTeamName <- staticText p [bgcolor := black, color := white, text := getBlackTeam myOptions ]
+      redTeamName   <- staticText p [color := red, text := getRedTeam myOptions ]
+      blackTeamName <- staticText p [color := black, text := getBlackTeam myOptions ]
       timeBox  <- myBox p "Remaining time"
       rnrBox   <- myBox p "Round number"
       zoomBox  <- myBox p "Zoom in/out"
       -- set layout 
       set p 
          [layout := column 20
-                       [ widget redTeamName
+           $ map hfill [ widget redTeamName
                        , widget blackTeamName
                        , rnrBox  .^. widget roundNumberText
                        , timeBox .^. widget timeRemaining
-                       , zoomBox .^. widget scalingSlider
+                       , zoomBox .^. (hfill $ widget scalingSlider)
                        ]]
       -- return widgets
       return (p, roundNumberText, timeRemaining, scalingSlider)
@@ -153,7 +153,7 @@ makeControlPanel w =
       set p 
          [layout := column 20
                        [ grid 5 5 [[widget stopButton, widget stepButton], [widget startButton, widget finishButton]]
-                       , speedBox .^. widget speedSlider 
+                       , speedBox .^. (hfill $ widget speedSlider)
                        ]]
       -- return widgets
       return (p, stopButton, stepButton, startButton, finishButton, speedSlider)
@@ -164,7 +164,7 @@ makeControlPanel w =
 makeScorePanel w = 
    do p <- panel w [bgcolor := white]
       -- create widgets
-      let makeInScore c = staticText p [fontSize := 28, size := sz 50 20, bgcolor := c, color := white ]
+      let makeInScore c = staticText p [fontSize := 28, size := sz 50 40, color := c ]
       scoreByRed     <- makeInScore red
       scoreByBlack   <- makeInScore black
       carriedByRed   <- makeInScore red
