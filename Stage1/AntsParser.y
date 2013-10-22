@@ -23,17 +23,48 @@ import AntsBase
   ')'               { TokenParensRight }
   Ident             { TokenIdentifier $$ }
 
+  Here              { TokenHere }
+  Ahead             { TokenAhead }
+  LeftAhead         { TokenLeftAhead }
+  TokenRightAhead   { TokenRightAhead }
+
+  Friend 			{ TokenFriend }
+  Foe 				{ TokenFoe }
+  FriendWithFood 	{ TokenFriendWithFood }
+  FoeWithFood       { TokenFoeWithFood }
+  Food              { TokenFood }
+  Rock              { TokenRock	}
+  Marker            { TokenMarker }
+  FoeMarker         { TokenFoeMarker }
+  Home              { TokenHome }
+  FoeHome           { TokenFoeHome }
+
+  Sense             { TokenSense }
+  Mark              { TokenMark }
+  Unmark            { TokenUnmark }
+  PickUp            { TokenPickUp }
+  Drop              { TokenDrop	}
+  Turn              { TokenTurn	}
+  Move              { TokenMove	}
+  Flip              { TokenFlip	}
+
 %%
 
 ------------------------------------------
 -- Ants language grammar
 
-program  	: functions	     	   			         { Program $1 }
+program  	: funcs    	     	   			         { Program $1 }
 
-functions : {- empty -}           	         { [] }
-      		| functions	function_rule     	   { $2 : $1 }
+funcs : {- empty -}           	             { [] }
+      | funcs	func     	                     { $2 : $1 }
 
-function_rule : function Ident '{' '}'       { Function $2 }
+func  : function Ident '{' lines '}'         { Function $2 $4 }
+
+lines : {- empty -}                          { [] }
+      | lines line                           { $2 : $1 }
+
+line  : Sense Ahead Friend                   { Sense Ahead Friend }
+
 
 {
 
