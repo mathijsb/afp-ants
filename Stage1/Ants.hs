@@ -10,6 +10,7 @@ import System.Environment
 
 import AntsLexer
 import AntsParser
+import AntsCompiler
 
 main = do
  	args <- getArgs
@@ -20,5 +21,14 @@ main = do
 compileFile file = do
 	fileHandle <- openFile file ReadMode
 	tokens <- liftM lexAntsString (hGetContents fileHandle)
+
+	putStrLn "****************************************"
 	putStrLn $ "Tokens: " ++ show tokens
-	putStrLn $ "AST: " ++ (show . parseAntsTokens $ tokens)
+
+	let ast = parseAntsTokens $ tokens
+
+	putStrLn "****************************************"
+	--putStrLn $ "AST: " ++ show ast
+
+	putStrLn "****************************************"
+	putStrLn $ "Compiled program:" ++ compileAnts ast

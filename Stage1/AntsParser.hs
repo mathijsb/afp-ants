@@ -5,12 +5,14 @@ import AntsBase
 
 -- parser produced by Happy Version 1.18.10
 
-data HappyAbsSyn t4 t5 t6
+data HappyAbsSyn t4 t5 t6 t7 t8
 	= HappyTerminal (AntsToken)
 	| HappyErrorToken Int
 	| HappyAbsSyn4 t4
 	| HappyAbsSyn5 t5
 	| HappyAbsSyn6 t6
+	| HappyAbsSyn7 t7
+	| HappyAbsSyn8 t8
 
 action_0 (4) = happyGoto action_3
 action_0 (5) = happyGoto action_2
@@ -19,25 +21,40 @@ action_0 _ = happyReduce_2
 action_1 (5) = happyGoto action_2
 action_1 _ = happyFail
 
-action_2 (7) = happyShift action_5
+action_2 (9) = happyShift action_5
 action_2 (6) = happyGoto action_4
 action_2 _ = happyReduce_1
 
-action_3 (15) = happyAccept
+action_3 (39) = happyAccept
 action_3 _ = happyFail
 
 action_4 _ = happyReduce_3
 
-action_5 (14) = happyShift action_6
+action_5 (16) = happyShift action_6
 action_5 _ = happyFail
 
-action_6 (10) = happyShift action_7
+action_6 (12) = happyShift action_7
 action_6 _ = happyFail
 
-action_7 (11) = happyShift action_8
-action_7 _ = happyFail
+action_7 (7) = happyGoto action_8
+action_7 _ = happyReduce_5
 
-action_8 _ = happyReduce_4
+action_8 (13) = happyShift action_10
+action_8 (31) = happyShift action_11
+action_8 (8) = happyGoto action_9
+action_8 _ = happyFail
+
+action_9 _ = happyReduce_6
+
+action_10 _ = happyReduce_4
+
+action_11 (18) = happyShift action_12
+action_11 _ = happyFail
+
+action_12 (21) = happyShift action_13
+action_12 _ = happyFail
+
+action_13 _ = happyReduce_7
 
 happyReduce_1 = happySpecReduce_1  4 happyReduction_1
 happyReduction_1 (HappyAbsSyn5  happy_var_1)
@@ -59,34 +76,78 @@ happyReduction_3 (HappyAbsSyn6  happy_var_2)
 	)
 happyReduction_3 _ _  = notHappyAtAll 
 
-happyReduce_4 = happyReduce 4 6 happyReduction_4
+happyReduce_4 = happyReduce 5 6 happyReduction_4
 happyReduction_4 (_ `HappyStk`
+	(HappyAbsSyn7  happy_var_4) `HappyStk`
 	_ `HappyStk`
 	(HappyTerminal (TokenIdentifier happy_var_2)) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn6
-		 (Function happy_var_2
+		 (Function happy_var_2 happy_var_4
 	) `HappyStk` happyRest
 
+happyReduce_5 = happySpecReduce_0  7 happyReduction_5
+happyReduction_5  =  HappyAbsSyn7
+		 ([]
+	)
+
+happyReduce_6 = happySpecReduce_2  7 happyReduction_6
+happyReduction_6 (HappyAbsSyn8  happy_var_2)
+	(HappyAbsSyn7  happy_var_1)
+	 =  HappyAbsSyn7
+		 (happy_var_2 : happy_var_1
+	)
+happyReduction_6 _ _  = notHappyAtAll 
+
+happyReduce_7 = happySpecReduce_3  8 happyReduction_7
+happyReduction_7 _
+	_
+	_
+	 =  HappyAbsSyn8
+		 (Sense Ahead Friend
+	)
+
 happyNewToken action sts stk [] =
-	action 15 15 notHappyAtAll (HappyState action) sts stk []
+	action 39 39 notHappyAtAll (HappyState action) sts stk []
 
 happyNewToken action sts stk (tk:tks) =
 	let cont i = action i i tk (HappyState action) sts stk tks in
 	case tk of {
-	TokenFunction -> cont 7;
-	TokenIf -> cont 8;
-	TokenElse -> cont 9;
-	TokenBraceLeft -> cont 10;
-	TokenBraceRight -> cont 11;
-	TokenParensLeft -> cont 12;
-	TokenParensRight -> cont 13;
-	TokenIdentifier happy_dollar_dollar -> cont 14;
+	TokenFunction -> cont 9;
+	TokenIf -> cont 10;
+	TokenElse -> cont 11;
+	TokenBraceLeft -> cont 12;
+	TokenBraceRight -> cont 13;
+	TokenParensLeft -> cont 14;
+	TokenParensRight -> cont 15;
+	TokenIdentifier happy_dollar_dollar -> cont 16;
+	TokenHere -> cont 17;
+	TokenAhead -> cont 18;
+	TokenLeftAhead -> cont 19;
+	TokenRightAhead -> cont 20;
+	TokenFriend -> cont 21;
+	TokenFoe -> cont 22;
+	TokenFriendWithFood -> cont 23;
+	TokenFoeWithFood -> cont 24;
+	TokenFood -> cont 25;
+	TokenRock -> cont 26;
+	TokenMarker -> cont 27;
+	TokenFoeMarker -> cont 28;
+	TokenHome -> cont 29;
+	TokenFoeHome -> cont 30;
+	TokenSense -> cont 31;
+	TokenMark -> cont 32;
+	TokenUnmark -> cont 33;
+	TokenPickUp -> cont 34;
+	TokenDrop -> cont 35;
+	TokenTurn -> cont 36;
+	TokenMove -> cont 37;
+	TokenFlip -> cont 38;
 	_ -> happyError' (tk:tks)
 	}
 
-happyError_ 15 tk tks = happyError' tks
+happyError_ 39 tk tks = happyError' tks
 happyError_ _ tk tks = happyError' (tk:tks)
 
 newtype HappyIdentity a = HappyIdentity a

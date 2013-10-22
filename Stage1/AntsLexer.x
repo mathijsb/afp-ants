@@ -30,6 +30,31 @@ tokens :-
   \(              { \s -> TokenParensLeft }
   \)              { \s -> TokenParensRight }
 
+  Here            { \s -> TokenHere }
+  Ahead           { \s -> TokenAhead }
+  LeftAhead       { \s -> TokenLeftAhead }
+  RightAhead      { \s -> TokenRightAhead }
+
+  Friend                { \s -> TokenFriend }
+  Foe                   { \s -> TokenFoe }
+  FriendWithFood        { \s -> TokenFriendWithFood }
+  FoeWithFood           { \s -> TokenFoeWithFood }
+  Food                  { \s -> TokenFood }
+  Rock                  { \s -> TokenRock }
+  Marker                { \s -> TokenMarker }
+  FoeMarker             { \s -> TokenFoeMarker }
+  Home                  { \s -> TokenHome }
+  FoeHome               { \s -> TokenFoeHome }
+
+  Sense            { \s -> TokenSense }
+  Mark             { \s -> TokenMark }
+  Unmark           { \s -> TokenUnmark }
+  PickUp           { \s -> TokenPickUp }
+  Drop             { \s -> TokenDrop }
+  Turn             { \s -> TokenTurn }
+  Move             { \s -> TokenMove }
+  Flip             { \s -> TokenFlip }
+
   -- Identifiers
   [$alpha $digit \+ \-]+			{ \s -> TokenIdentifier s }
 
