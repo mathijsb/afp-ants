@@ -1,6 +1,6 @@
-module ReadWorld (readWorld) where
+module Common.ReadWorld (readWorld) where
 
-import Simulator
+import Common.Simulator
 import Data.Char (isDigit)
 import Data.Array.IO (newListArray)
 

@@ -1,9 +1,9 @@
-module GamePlay where
+module Common.GamePlay where
 
-import Simulator
-import ReadWorld
-import ReadInstructions
-import Options
+import Common.Simulator
+import Common.ReadWorld
+import Common.ReadInstructions
+import Common.Options
 import Data.Array.IO
 import Control.Monad.State
 import qualified Data.Set as S

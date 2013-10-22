@@ -4,7 +4,7 @@
    Universiteit Utrecht, Software Technology Master
 -}
 
-module Simulator where
+module Common.Simulator where
 
 import Control.Monad.State
 import Data.Char

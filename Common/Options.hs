@@ -1,4 +1,4 @@
-module Options where
+module Common.Options where
 
 import Data.List (isSuffixOf)
 import System.Console.GetOpt

@@ -1,8 +1,8 @@
-module ReadInstructions (readInstructions) where
+module Common.ReadInstructions (readInstructions) where
 
 import Data.Char (toUpper, isDigit)
 import Data.Array.IO (newListArray)
-import Simulator
+import Common.Simulator
 
 readInstructions :: String -> IO AntInstructions
 readInstructions antFile = 

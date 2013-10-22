@@ -7,9 +7,9 @@
 module Main (main) where
 
 import Graphics.UI.WX hiding (when)
-import GamePlay
-import Options
-import Simulator
+import Common.GamePlay
+import Common.Options
+import Common.Simulator
 import Control.Monad
 import Data.Array.IO
 import Data.IORef
@@ -17,7 +17,7 @@ import Data.List
 import qualified Data.Set as S
 import Data.Maybe
 import System.Time
-import Caching
+import Common.Caching
 
 main :: IO ()
 main = 

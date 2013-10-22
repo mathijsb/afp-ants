@@ -3,13 +3,13 @@
      - computing points on screen for cells
 -}
 
-module Caching 
+module Common.Caching 
    ( Cache, makeCache
    , cellCentre, antPolygon, drawPolygons
    ) where
 
 import Graphics.UI.WX
-import Simulator
+import Common.Simulator
 import Data.Array.IO
 import Data.List
 import Control.Monad
