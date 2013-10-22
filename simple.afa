@@ -1,0 +1,57 @@
+;
+; Simple Ant specification in AFA (Assembler for Ants).
+;
+; This ant walks around, randomly altering its direction on obstacles, and 
+; alternates between finding food and retrieving food.
+;
+
+find-food:
+    SENSE HERE HOME OR GOTO not-home
+    TURN LEFT
+    TURN LEFT
+    TURN LEFT
+    GOTO find-food-move
+not-home:
+    PICKUP OR GOTO find-food-move
+                                        ; implicit continuation to found-food
+found-food:
+    SENSE HERE HOME OR GOTO found-food-move
+    DROP
+    TURN LEFT
+    TURN LEFT
+    TURN LEFT
+    GOTO find-food-move
+    
+found-food-move:
+    MOVE OR GOTO recover-found
+    GOTO found-food
+
+find-food-right:
+    SENSE RIGHTAHEAD FOOD OR GOTO find-food-left
+    TURN RIGHT
+    MOVE OR GOTO recover-find
+    GOTO find-food
+
+find-food-left:
+    SENSE LEFTAHEAD FOOD OR GOTO find-food-move
+    TURN LEFT
+    MOVE OR GOTO recover-find
+    GOTO find-food
+
+find-food-move:
+    MOVE OR GOTO recover-find
+    GOTO find-food
+
+recover-find:
+    FLIP 2 OR JUMP 3
+    TURN RIGHT
+    GOTO find-food-move
+    TURN LEFT
+    GOTO find-food-move
+
+recover-found:
+    FLIP 2 OR JUMP 3
+    TURN RIGHT
+    GOTO found-food-move
+    TURN LEFT
+    GOTO found-food-move
