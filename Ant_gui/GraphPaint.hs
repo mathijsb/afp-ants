@@ -2,6 +2,7 @@ module GraphPaint where
 
 import Graphics.UI.WXCore
 import Graphics.UI.WX
+import Control.Monad
 
 ---globale variabelen
 nodeW = 100
@@ -20,7 +21,8 @@ addNodeToPanel pnl pos = do
 beginDrag parent pnl pt = set pnl [on unclick := endDrag parent pnl]
 
 endDrag parent pnl pt = do
-						set pnl [position := pt]
+						pos <- liftM (pointMove (vecFromPoint pt)) (get pnl position)
+						set pnl [position := pos]
 						putStrLn (show pt)
 						set pnl [on unclick := doNothing ]
 
