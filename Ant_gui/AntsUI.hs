@@ -1,9 +1,7 @@
-{-
-Hoi! Deze code moet nog gerefactored worden, en staat alleen in de github voor jou vermaak! Groetjes, Nico
--}
 import Graphics.UI.WXCore
 import Graphics.UI.WX
 import Blocks
+import GraphPaint
 
 import Debug.Trace
 
@@ -39,7 +37,9 @@ antsUI
 		
 		p <- panelCreate f idAny rectNull 0
 		
-		windowOnPaintRaw p (paintWorkspace testworkspace p)
+		--windowOnPaintRaw p (paintWorkspace testworkspace p)
+		
+		addNodeToPanel p (Point 0 0)
 		
 		-- position of all the elements
 		
@@ -50,6 +50,12 @@ antsUI
 			  on (menu quit)   := close f,
 			  on (menu open)   := undefined, --TODO
 			  on (menu save)   := undefined] --TODO
+		where
+			loadWorkspace = undefined 				--TODO
+			saveWorkspace = undefined				--TODO
+
+
+{-
 		where
 			paintWorkspace workspace p dc viewRect updateAreas
 				= traceShow (viewRect, updateAreas) $ do 
@@ -76,7 +82,5 @@ antsUI
 																	dcDrawLine dc (Point  ((screenW`div`2)+(sibling*(xOffset+(blockW`div`2)))) (depth*(blockH+yOffset)+blockH)) (Point ((screenW`div`2)+((sibling+(workspaceWidth f))*(xOffset+(blockW`div`2)))) ((depth+1)*(blockH+yOffset)))
 																	br (paintBlock dc p br (depth+1) (sibling-(workspaceWidth t)) t)
 																	br (paintBlock dc p br (depth+1) (sibling+(workspaceWidth f)) f)
-			
-			addWorkspaceNode = undefined			--TODO
-			loadWorkspace = undefined 				--TODO
-			saveWorkspace = undefined				--TODO			
+-}
+						
