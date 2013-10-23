@@ -3,13 +3,16 @@ module Stage1.AntsBase
 		AntsToken(..),
 		Program(..),
 		Function(..),
-		Direction(..),
+		SenseDir(..),
 		Condition(..),
+		LeftOrRight(..),
 		Statement(..),
 		AntsAlgebra,
 		foldAntsAlgebra
 	) 
 	where
+
+import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNumber(..))
 		
 ------------------------------------------
 -- Token type for Ants language.
@@ -17,9 +20,11 @@ module Stage1.AntsBase
 type Ident = String
 
 data AntsToken =	
+
 	TokenFunction			|
 	TokenIf         		|
 	TokenElse				|
+	TokenWhile				|
 	TokenBraceLeft			|
 	TokenBraceRight			|
 	TokenParensLeft			|
@@ -56,6 +61,7 @@ data AntsToken =
 ------------------------------------------
 -- Data structure for Ants language
 
+{-
 data Direction = 
 	Here
 	| Ahead
@@ -75,17 +81,19 @@ data Condition =
 	| Home
 	| FoeHome
 	deriving (Eq, Show)
+-}
 
 data Program = Program [Function]
-	deriving (Eq, Show)
+	deriving (Show)
 
 data Function = Function Ident [Statement]
-	deriving (Eq, Show)
+	deriving (Show)
 
-data Statement = Sense Direction Condition
+data Statement = Sense SenseDir Condition
 			   | Move
 			   | If [Statement] [Statement] [Statement]
-	deriving (Eq, Show)
+			   | While [Statement] [Statement]
+	deriving (Show)
 
 
 ------------------------------------------
@@ -112,5 +120,5 @@ foldAntsAlgebra (p,f,(s1, s2)) = foldProgram
 	where
 		foldProgram (Program functions) = p (map foldFunction functions)
 		foldFunction (Function ident statements) = f ident (map foldStatement statements)
-		foldStatement (If sts1 sts2 sts3) = s1 (map foldStatement sts1) (map foldStatement sts1) (map foldStatement sts1)
+		foldStatement (If sts1 sts2 sts3) = s1 (map foldStatement sts1) (map foldStatement sts2) (map foldStatement sts3)
 		foldStatement statement = s2 statement

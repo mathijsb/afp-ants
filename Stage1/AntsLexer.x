@@ -30,6 +30,7 @@ tokens :-
 
   if              { \s -> TokenIf }
   else            { \s -> TokenElse }
+  while           { \s -> TokenWhile }
 
   Here            { \s -> TokenHere }
   Ahead           { \s -> TokenAhead }

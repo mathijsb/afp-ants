@@ -17,6 +17,7 @@ import Stage1.AntsBase
   function          { TokenFunction }
   if                { TokenIf }
   else              { TokenElse }
+  while             { TokenWhile }
   '{'               { TokenBraceLeft }
   '}'               { TokenBraceRight }
   '('               { TokenParensLeft }
@@ -65,6 +66,7 @@ statements : {- empty -}                     { [] }
 
 statement  : if '(' statements ')' '{' statements '}' {If $3 $6 []}
            | if '(' statements ')' '{' statements '}' else '{' statements '}' {If $3 $6 $10}
+           | while '(' statements ')' '{' statements '}' {While $3 $6}
            | command                         { $1 }
 
 command    : Sense direction condition       { Sense $2 $3 }
@@ -77,7 +79,7 @@ condition : Friend                           { Friend }
           | FoeWithFood                      { FoeWithFood }
           | Food                             { Food }
           | Rock                             { Rock }
-          | Marker                           { Marker }
+          | Marker                           { Marker 0 }
           | FoeMarker                        { FoeMarker }
           | Home                             { Home }
           | FoeHome                          { FoeHome }

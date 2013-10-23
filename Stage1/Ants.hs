@@ -11,6 +11,7 @@ import System.Environment
 import Stage1.AntsLexer
 import Stage1.AntsParser
 import Stage1.AntsCompiler
+import Stage1.AntsPrettyPrinter
 
 main = do
  	args <- getArgs
@@ -31,4 +32,4 @@ compileFile file = do
 	--putStrLn $ "AST: " ++ show ast
 
 	putStrLn "****************************************"
-	putStrLn $ "Compiled program:" ++ compileAnts ast
+	putStrLn $ "Compiled program:\n" ++ (prettyPrintAfa . compileAnts $ ast)

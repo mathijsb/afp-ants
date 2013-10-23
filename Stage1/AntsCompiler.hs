@@ -5,21 +5,28 @@ module Stage1.AntsCompiler
 	where
 
 import Stage1.AntsBase
+import Stage2.Base
 
-type ProgramFlow = Int
+type ProgramFlow = Label
 
-antsAlgebra :: AntsAlgebra [Char] [Char] (ProgramFlow -> [Char])
+antsAlgebra :: AntsAlgebra [AInstruction] [AInstruction] (ProgramFlow -> [AInstruction])
 antsAlgebra = (compileProgram,
 			   compileFunction,
 			   (compileStatementIf, compileStatement))
 
 	where
 		compileProgram = concat
-		compileFunction ident statements = ident ++ ":\n" ++ (concat . map ($1) $ statements)
-		compileStatementIf sts1 sts2 sts3 = (\flow -> undefined)
-		compileStatement (Sense direction condition) = (\flow -> "SENSE " ++ show direction ++ " " ++ show condition ++ " OR GOTO label" ++ show flow)
+		compileFunction ident statements = [ALabel1 ident] ++ (concat . map ($"") $ statements)
+		compileStatementIf sts1 sts2 sts3 = (\flow -> (applyFlow sts1 flow) 
+														++ (applyFlow sts2 flow) 
+														++ [ALabel1 "IFNOT"] 
+														++ (applyFlow sts3 flow))
+
+		compileStatement (Sense direction condition) = (\flow -> [ASense direction condition (ALabel flow)])
+		compileStatement Move = (\flow -> [AMove (ALabel flow)])
+
+		applyFlow sts flow = concat . map ($flow) $ sts
 
 
-
-compileAnts :: Program -> [Char]
+compileAnts :: Program -> [AInstruction]
 compileAnts = foldAntsAlgebra antsAlgebra

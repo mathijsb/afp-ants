@@ -84,6 +84,7 @@ data AInstruction
    | AFlip Int ADest
    | AGoto Label
    | ANop
+   | ALabel1 String -- Used only in Stage1, probably needs to be refactored...
  deriving Show
 
 type Label = String
