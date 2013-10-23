@@ -1,10 +1,10 @@
-module AntsCompiler 
+module Stage1.AntsCompiler 
 	(
 		compileAnts
 	) 
 	where
 
-import AntsBase
+import Stage1.AntsBase
 
 type ProgramFlow = Int
 

@@ -1,7 +1,7 @@
 {
-module AntsParser where
+module Stage1.AntsParser where
 
-import AntsBase
+import Stage1.AntsBase
 
 }
 

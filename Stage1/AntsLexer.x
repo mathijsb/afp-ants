@@ -1,10 +1,10 @@
 
 {
-module AntsLexer (lexAntsString) where
+module Stage1.AntsLexer (lexAntsString) where
 
 import System.IO
 import Control.Monad
-import AntsBase
+import Stage1.AntsBase
 
 }
 

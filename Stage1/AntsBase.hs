@@ -1,4 +1,4 @@
-module AntsBase 
+module Stage1.AntsBase 
 	(
 		AntsToken(..),
 		Program(..),

@@ -1,4 +1,4 @@
-module Ants 
+module Stage1.Ants 
 	(
 		main,
 	) 
@@ -8,9 +8,9 @@ import Control.Monad
 import System.IO
 import System.Environment
 
-import AntsLexer
-import AntsParser
-import AntsCompiler
+import Stage1.AntsLexer
+import Stage1.AntsParser
+import Stage1.AntsCompiler
 
 main = do
  	args <- getArgs

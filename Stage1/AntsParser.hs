@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -w #-}
-module AntsParser where
+module Stage1.AntsParser where
 
-import AntsBase
+import Stage1.AntsBase
 
 -- parser produced by Happy Version 1.18.10
 
