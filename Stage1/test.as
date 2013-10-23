@@ -3,9 +3,9 @@
 function test {
 	Sense Ahead Friend
 
-	--if(Sense Ahead Empty) {
-		--Move
-	--}
+	if(Sense Ahead Friend) {
+		Move
+	}
 }
 
 -- Test ant scripting file

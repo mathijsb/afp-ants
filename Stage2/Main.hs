@@ -12,6 +12,7 @@ import Data.List (intersperse)
 
 import Stage2.Assembler (assemble, assembleWithInfo)
 import Stage2.Parse (parseAssembler)
+import Stage2.PrettyPrint (instructionToString2)
 
 -- | Assembler for Ambiants main program.
 main :: IO ()
@@ -67,7 +68,7 @@ assembleFile ifile ofile = do
     contents <- hGetContents inputHandle
     outputHandle <- openFile ofile WriteMode
     mapM_ (putStrLn . show) $ assembleWithInfo $ parseAssembler $ contents
-    mapM_ (hPutStrLn outputHandle . show) $ assemble $ parseAssembler $ contents
+    mapM_ (hPutStrLn outputHandle . instructionToString2) $ assemble $ parseAssembler $ contents
     hClose inputHandle
     hClose outputHandle
 

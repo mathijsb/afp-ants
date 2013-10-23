@@ -1,4 +1,4 @@
-module AntsBase 
+module Stage1.AntsBase 
 	(
 		AntsToken(..),
 		Program(..),
@@ -83,25 +83,34 @@ data Function = Function Ident [Statement]
 	deriving (Eq, Show)
 
 data Statement = Sense Direction Condition
+			   | Move
+			   | If [Statement] [Statement] [Statement]
 	deriving (Eq, Show)
 
 
 ------------------------------------------
 
 -- Type for an algebra folding Ants programs.
-type AntsAlgebra program function =
+type AntsAlgebra program function statement =
 	(
 		-- Program
 		([function] -> program),
 		
-		-- Rule
-		(Ident -> function)
+		-- Function
+		(Ident -> [statement] -> function),
+
+		-- Statement
+		(([statement] -> [statement] -> [statement] -> statement),
+		 (Statement -> statement))
+
 		
 	)
 
 -- | Fold function for the ants algebra.
-foldAntsAlgebra :: AntsAlgebra p f -> Program -> p
-foldAntsAlgebra (p,f) = foldProgram
+foldAntsAlgebra :: AntsAlgebra p f s -> Program -> p
+foldAntsAlgebra (p,f,(s1, s2)) = foldProgram
 	where
 		foldProgram (Program functions) = p (map foldFunction functions)
-		foldFunction (Function ident statements) = f ident
+		foldFunction (Function ident statements) = f ident (map foldStatement statements)
+		foldStatement (If sts1 sts2 sts3) = s1 (map foldStatement sts1) (map foldStatement sts1) (map foldStatement sts1)
+		foldStatement statement = s2 statement

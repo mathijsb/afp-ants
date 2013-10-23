@@ -1,10 +1,10 @@
 
 {
-module AntsLexer (lexAntsString) where
+module Stage1.AntsLexer (lexAntsString) where
 
 import System.IO
 import Control.Monad
-import AntsBase
+import Stage1.AntsBase
 
 }
 
@@ -23,12 +23,13 @@ tokens :-
   "--".*							;
 
   function        { \s -> TokenFunction }
-  if              { \s -> TokenIf }
-  else            { \s -> TokenElse }
   \{              { \s -> TokenBraceLeft }
   \}              { \s -> TokenBraceRight }
   \(              { \s -> TokenParensLeft }
   \)              { \s -> TokenParensRight }
+
+  if              { \s -> TokenIf }
+  else            { \s -> TokenElse }
 
   Here            { \s -> TokenHere }
   Ahead           { \s -> TokenAhead }

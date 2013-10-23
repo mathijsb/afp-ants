@@ -1,7 +1,7 @@
 {
-module AntsParser where
+module Stage1.AntsParser where
 
-import AntsBase
+import Stage1.AntsBase
 
 }
 
@@ -26,11 +26,11 @@ import AntsBase
   Here              { TokenHere }
   Ahead             { TokenAhead }
   LeftAhead         { TokenLeftAhead }
-  TokenRightAhead   { TokenRightAhead }
+  RightAhead        { TokenRightAhead }
 
-  Friend 			{ TokenFriend }
-  Foe 				{ TokenFoe }
-  FriendWithFood 	{ TokenFriendWithFood }
+  Friend 			      { TokenFriend }
+  Foe 				      { TokenFoe }
+  FriendWithFood 	  { TokenFriendWithFood }
   FoeWithFood       { TokenFoeWithFood }
   Food              { TokenFood }
   Rock              { TokenRock	}
@@ -58,12 +58,34 @@ program  	: funcs    	     	   			         { Program $1 }
 funcs : {- empty -}           	             { [] }
       | funcs	func     	                     { $2 : $1 }
 
-func  : function Ident '{' lines '}'         { Function $2 $4 }
+func  : function Ident '{' statements '}'    { Function $2 $4 }
 
-lines : {- empty -}                          { [] }
-      | lines line                           { $2 : $1 }
+statements : {- empty -}                     { [] }
+           | statements statement            { $2 : $1 }
 
-line  : Sense Ahead Friend                   { Sense Ahead Friend }
+statement  : if '(' statements ')' '{' statements '}' {If $3 $6 []}
+           | if '(' statements ')' '{' statements '}' else '{' statements '}' {If $3 $6 $10}
+           | command                         { $1 }
+
+command    : Sense direction condition       { Sense $2 $3 }
+           | Move                            { Move }
+
+
+condition : Friend                           { Friend }
+          | Foe                              { Foe }
+          | FriendWithFood                   { FriendWithFood }
+          | FoeWithFood                      { FoeWithFood }
+          | Food                             { Food }
+          | Rock                             { Rock }
+          | Marker                           { Marker }
+          | FoeMarker                        { FoeMarker }
+          | Home                             { Home }
+          | FoeHome                          { FoeHome }
+
+direction : Here                             { Here }
+          | Ahead                            { Ahead }
+          | LeftAhead                        { LeftAhead }
+          | RightAhead                       { RightAhead }
 
 
 {
