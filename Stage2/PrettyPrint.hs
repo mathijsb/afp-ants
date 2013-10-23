@@ -1,12 +1,14 @@
 module Stage2.PrettyPrint (
     assemblerToString,
     instructionToString,
-    destToString
+    destToString,
+    instructionToString2
 ) where
 
 import Data.Char (toUpper)
 
 import Stage2.Base (AInstruction(..), ADest(..), Assembler(..))
+import Common.Simulator (LeftOrRight(..), Instruction(..))
 
 assemblerToString :: Assembler -> String
 assemblerToString = ats . aInstrs
@@ -28,6 +30,11 @@ instructionToString i = map toUpper . unwords $ case i of
   AFlip i dest         -> ["FLIP", show i, "OR", destToString dest]
   AGoto l              -> ["GOTO", l]
   ANop                 -> ["NOP"]
+
+instructionToString2 :: Instruction -> String
+instructionToString2 (Turn IsLeft state) = "Turn Left " ++ show state
+instructionToString2 (Turn IsRight state) = "Turn Right " ++ show state
+instructionToString2 instruction = show instruction
 
 destToString :: ADest -> String
 destToString d = case d of
