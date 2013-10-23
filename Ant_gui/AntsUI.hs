@@ -5,8 +5,6 @@ import Graphics.UI.WXCore
 import Graphics.UI.WX
 import Blocks
 
-import Debug.Trace
-
 main :: IO ()
 main = start antsUI
 
@@ -52,7 +50,7 @@ antsUI
 			  on (menu save)   := undefined] --TODO
 		where
 			paintWorkspace workspace p dc viewRect updateAreas
-				= traceShow (viewRect, updateAreas) $ do 
+				= do 
 					dcClear dc
 					(paintBlock dc p (dcWithBrushStyle dc (BrushStyle BrushSolid blue)) 0 0 workspace)
 						--paintBlock is best wel een domme functie. Is makkelijk stuk te maken, en doet veel te veel werk. Ga ik nog verbeteren!
