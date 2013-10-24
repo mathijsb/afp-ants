@@ -32,6 +32,9 @@ tokens :-
   else            { \s -> TokenElse }
   while           { \s -> TokenWhile }
 
+  Left            { \s -> TokenLeft }
+  Right           { \s -> TokenRight }
+  
   Here            { \s -> TokenHere }
   Ahead           { \s -> TokenAhead }
   LeftAhead       { \s -> TokenLeftAhead }
@@ -57,7 +60,7 @@ tokens :-
   Move             { \s -> TokenMove }
   Flip             { \s -> TokenFlip }
 
-  -- Identifiers
+  $digit+                   { \s -> TokenInteger (read s) }
   [$alpha $digit \+ \-]+			{ \s -> TokenIdentifier s }
 
 {

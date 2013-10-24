@@ -33,6 +33,12 @@ antsAlgebra = (compileProgram,
 
 		compileStatement (Sense direction condition) = (\(flow, context) -> [ASense direction condition flow])
 		compileStatement Move = (\(flow, context) -> [AMove flow])
+		compileStatement (Mark num) = (\(flow, context) -> [AMark num])
+		compileStatement (Unmark num) = (\(flow, context) -> [AUnmark num])
+		compileStatement PickUp = (\(flow, context) -> [APickUp flow])
+		compileStatement Drop = (\(flow, context) -> [ADrop])
+		compileStatement (Turn dir) = (\(flow, context) -> [ATurn dir])
+		compileStatement (Flip num) = (\(flow, context) -> [ADrop])
 
 		applyFlow sts dest context = concat . zipWith ($) sts $ map (\i -> (dest, context ++ "_" ++ show i)) [1..]
 
