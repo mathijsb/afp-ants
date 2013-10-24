@@ -7,7 +7,7 @@ module Stage1.AntsCompiler
 import Stage1.AntsBase
 import Stage2.Base
 
-type ProgramFlow = ADest
+type ProgramFlow = (ADest, String)
 
 antsAlgebra :: AntsAlgebra [AInstruction] [AInstruction] (ProgramFlow -> [AInstruction])
 antsAlgebra = (compileProgram,
@@ -16,23 +16,25 @@ antsAlgebra = (compileProgram,
 
 	where
 		compileProgram instrs = [ALabel1 "START"] ++ concat instrs ++ [AGoto "START"]
-		compileFunction ident statements = [ALabel1 ident] ++ (concat . map ($(ALabel ident )) $ statements)
+		compileFunction ident sts = [ALabel1 ident] ++ (applyFlow sts (ARelative 1) ident)   -- undefined -- [ALabel1 ident] ++ (concat . map ($(ALabel ident )) $ statements)
 
-		compileStatementIf sts1 sts2 sts3 = (\flow -> (applyFlow sts1 flow) 
-														++ (applyFlow sts2 flow) 
-														++ [ALabel1 "IFNOT"] 
-														++ (applyFlow sts3 flow))
+		compileStatementIf sts1 sts2 sts3 (flow, context) = 
+			    (applyFlow sts1 (ALabel (context ++ "_ELSE")) (context ++ "_ELSE")) 
+			 ++ (applyFlow sts2 (ARelative 1) (context ++ "_IF")) 
+			 ++ [ALabel1 (context ++ "_ELSE")]
+			 ++ (applyFlow sts3 (ARelative 1) (context ++ "_ELSE")) 
 
-		compileStatementWhile sts1 sts2 = (\flow -> [ALabel1 "WHILE"]
-												 ++ (applyFlow sts1 (ALabel "IFNOT")) 
-												 ++ (applyFlow sts2 (ARelative 1)) 
-												 ++ [AGoto "WHILE"]
-												 ++ [ALabel1 "IFNOT"])
+		compileStatementWhile sts1 sts2 (flow, context) = 
+				[ALabel1 (context ++ "_WHILE")]
+			 ++ (applyFlow sts1 (ALabel (context ++ "_IFNOT")) (context ++ "_WHILE")) 
+			 ++ (applyFlow sts2 (ARelative 1) (context ++ "_WHILE")) 
+			 ++ [AGoto (context ++ "_WHILE")]
+			 ++ [ALabel1 (context ++ "_IFNOT")]
 
-		compileStatement (Sense direction condition) = (\flow -> [ASense direction condition flow])
-		compileStatement Move = (\flow -> [AMove flow])
+		compileStatement (Sense direction condition) = (\(flow, context) -> [ASense direction condition flow])
+		compileStatement Move = (\(flow, context) -> [AMove flow])
 
-		applyFlow sts flow = concat . map ($flow) $ sts
+		applyFlow sts dest context = concat . zipWith ($) sts $ map (\i -> (dest, context ++ "_" ++ show i)) [1..]
 
 
 compileAnts :: Program -> [AInstruction]
