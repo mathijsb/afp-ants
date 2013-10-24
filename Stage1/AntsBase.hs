@@ -109,6 +109,7 @@ type AntsAlgebra program function statement =
 
 		-- Statement
 		(([statement] -> [statement] -> [statement] -> statement),
+		 ([statement] -> [statement] -> statement),
 		 (Statement -> statement))
 
 		
@@ -116,9 +117,10 @@ type AntsAlgebra program function statement =
 
 -- | Fold function for the ants algebra.
 foldAntsAlgebra :: AntsAlgebra p f s -> Program -> p
-foldAntsAlgebra (p,f,(s1, s2)) = foldProgram
+foldAntsAlgebra (p, f, (s1, s2, s3)) = foldProgram
 	where
 		foldProgram (Program functions) = p (map foldFunction functions)
 		foldFunction (Function ident statements) = f ident (map foldStatement statements)
 		foldStatement (If sts1 sts2 sts3) = s1 (map foldStatement sts1) (map foldStatement sts2) (map foldStatement sts3)
-		foldStatement statement = s2 statement
+		foldStatement (While sts1 sts2) = s2 (map foldStatement sts1) (map foldStatement sts2)
+		foldStatement statement = s3 statement

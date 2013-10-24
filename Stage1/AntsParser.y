@@ -59,14 +59,14 @@ program  	: funcs    	     	   			         { Program $1 }
 funcs : {- empty -}           	             { [] }
       | funcs	func     	                     { $2 : $1 }
 
-func  : function Ident '{' statements '}'    { Function $2 $4 }
+func  : function Ident '{' statements '}'    { Function $2 (reverse $4) }
 
 statements : {- empty -}                     { [] }
            | statements statement            { $2 : $1 }
 
-statement  : if '(' statements ')' '{' statements '}' {If $3 $6 []}
-           | if '(' statements ')' '{' statements '}' else '{' statements '}' {If $3 $6 $10}
-           | while '(' statements ')' '{' statements '}' {While $3 $6}
+statement  : if '(' statements ')' '{' statements '}' {If (reverse $3) (reverse $6) []}
+           | if '(' statements ')' '{' statements '}' else '{' statements '}' {If (reverse $3) (reverse $6) (reverse $10)}
+           | while '(' statements ')' '{' statements '}' {While (reverse $3) (reverse $6)}
            | command                         { $1 }
 
 command    : Sense direction condition       { Sense $2 $3 }

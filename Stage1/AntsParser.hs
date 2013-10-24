@@ -219,7 +219,7 @@ happyReduction_4 (_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn6
-		 (Function happy_var_2 happy_var_4
+		 (Function happy_var_2 (reverse happy_var_4)
 	) `HappyStk` happyRest
 
 happyReduce_5 = happySpecReduce_0  7 happyReduction_5
@@ -245,7 +245,7 @@ happyReduction_7 (_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn8
-		 (If happy_var_3 happy_var_6 []
+		 (If (reverse happy_var_3) (reverse happy_var_6) []
 	) `HappyStk` happyRest
 
 happyReduce_8 = happyReduce 11 8 happyReduction_8
@@ -262,7 +262,7 @@ happyReduction_8 (_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn8
-		 (If happy_var_3 happy_var_6 happy_var_10
+		 (If (reverse happy_var_3) (reverse happy_var_6) (reverse happy_var_10)
 	) `HappyStk` happyRest
 
 happyReduce_9 = happyReduce 7 8 happyReduction_9
@@ -275,7 +275,7 @@ happyReduction_9 (_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn8
-		 (While happy_var_3 happy_var_6
+		 (While (reverse happy_var_3) (reverse happy_var_6)
 	) `HappyStk` happyRest
 
 happyReduce_10 = happySpecReduce_1  8 happyReduction_10

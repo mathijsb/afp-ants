@@ -4,6 +4,7 @@ module Stage1.AntsPrettyPrinter
 	) 
 	where
 
+import Data.Char
 import Common.Simulator (LeftOrRight(..))
 
 import Stage1.AntsBase
@@ -13,5 +14,5 @@ import Stage2.PrettyPrint
 prettyPrintAfa :: [AInstruction] -> String
 prettyPrintAfa = unlines . map instrToString
 	where
-		instrToString (ALabel1 str) = str ++ ":"
-		instrToString i = instructionToString i
+		instrToString (ALabel1 str) = (map toUpper str) ++ ":"
+		instrToString i = "\t" ++ instructionToString i
