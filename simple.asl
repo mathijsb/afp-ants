@@ -6,6 +6,8 @@
 --
 
 function main {
+
+    -- Iterate while navigating to the food.
     while {
         if (Sense Here Home) {
             Turn Left
@@ -15,6 +17,8 @@ function main {
             break
         }
 
+        -- When a move is not possible randomly turn left or right
+        -- until a move is possible
         while (!Move) {
             if (Flip 2) {
                 Turn Right
@@ -24,7 +28,11 @@ function main {
         }
     }
 
+    -- Iterate while navigating home.
     while (!Sense Here Home) {
+
+        -- When a move is not possible randomly turn left or right
+        -- until a move is possible
         while (!Move) {
             if (Flip 2) {
                 Turn Right
