@@ -29,6 +29,7 @@ data AntsToken =
 	TokenBraceRight			|
 	TokenParensLeft			|
 	TokenParensRight		|
+	TokenBreak              |
 
 	TokenIdentifier Ident 	|
 	TokenInteger Int        |
@@ -82,6 +83,7 @@ data Statement = Sense SenseDir Condition
 			   | Flip Int
 			   | If [Statement] [Statement] [Statement]
 			   | While [Statement] [Statement]
+			   | Break
 	deriving (Show)
 
 

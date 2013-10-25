@@ -31,10 +31,11 @@ tokens :-
   if              { \s -> TokenIf }
   else            { \s -> TokenElse }
   while           { \s -> TokenWhile }
-
+  break           { \s -> TokenBreak }
+  
   Left            { \s -> TokenLeft }
   Right           { \s -> TokenRight }
-  
+
   Here            { \s -> TokenHere }
   Ahead           { \s -> TokenAhead }
   LeftAhead       { \s -> TokenLeftAhead }

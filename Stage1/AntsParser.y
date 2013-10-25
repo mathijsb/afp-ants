@@ -19,6 +19,8 @@ import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNum
   if                { TokenIf }
   else              { TokenElse }
   while             { TokenWhile }
+  break             { TokenBreak }
+
   '{'               { TokenBraceLeft }
   '}'               { TokenBraceRight }
   '('               { TokenParensLeft }
@@ -72,6 +74,7 @@ statements : {- empty -}                     { [] }
 statement  : if '(' statements ')' '{' statements '}' {If (reverse $3) (reverse $6) []}
            | if '(' statements ')' '{' statements '}' else '{' statements '}' {If (reverse $3) (reverse $6) (reverse $10)}
            | while '(' statements ')' '{' statements '}' {While (reverse $3) (reverse $6)}
+           | break                           { Break }
            | command                         { $1 }
 
 command    : Sense sense_direction condition { Sense $2 $3 }
