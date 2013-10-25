@@ -20,10 +20,10 @@ antsAlgebra = (compileProgram,
 		compileFunction ident sts = [ALabel1 ident] ++ (applyFlow sts (ARelative 1) ident Nothing)
 
 		compileStatementIf sts1 sts2 sts3 (flow, context, brk) = 
-			    (applyFlow sts1 (ALabel (context ++ "_ELSE")) (context ++ "_ELSE") Nothing) 
-			 ++ (applyFlow sts2 (ARelative 1) (context ++ "_IF") Nothing) 
+			    (applyFlow sts1 (ALabel (context ++ "_ELSE")) (context ++ "_ELSE") brk) 
+			 ++ (applyFlow sts2 (ARelative 1) (context ++ "_IF") brk) 
 			 ++ [ALabel1 (context ++ "_ELSE")]
-			 ++ (applyFlow sts3 (ARelative 1) (context ++ "_ELSE") Nothing) 
+			 ++ (applyFlow sts3 (ARelative 1) (context ++ "_ELSE") brk) 
 
 		compileStatementWhile sts1 sts2 (flow, context, brk) = 
 				[ALabel1 (context ++ "_WHILE")]
