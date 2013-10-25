@@ -29,7 +29,13 @@ data AntsToken =
 	TokenBraceRight			|
 	TokenParensLeft			|
 	TokenParensRight		|
+	TokenBreak              |
+
 	TokenIdentifier Ident 	|
+	TokenInteger Int        |
+
+	TokenLeft               |
+	TokenRight 				|
 
 	TokenHere				|
 	TokenAhead				|
@@ -61,28 +67,6 @@ data AntsToken =
 ------------------------------------------
 -- Data structure for Ants language
 
-{-
-data Direction = 
-	Here
-	| Ahead
-	| LeftAhead
-	| RightAhead
-	deriving (Eq, Show)
-
-data Condition =
-	Friend
-	| Foe
-	| FriendWithFood
-	| FoeWithFood
-	| Food
-	| Rock
-	| Marker
-	| FoeMarker
-	| Home
-	| FoeHome
-	deriving (Eq, Show)
--}
-
 data Program = Program [Function]
 	deriving (Show)
 
@@ -91,8 +75,15 @@ data Function = Function Ident [Statement]
 
 data Statement = Sense SenseDir Condition
 			   | Move
+			   | Mark MarkerNumber
+			   | Unmark MarkerNumber
+			   | PickUp
+			   | Drop
+			   | Turn LeftOrRight
+			   | Flip Int
 			   | If [Statement] [Statement] [Statement]
 			   | While [Statement] [Statement]
+			   | Break
 	deriving (Show)
 
 

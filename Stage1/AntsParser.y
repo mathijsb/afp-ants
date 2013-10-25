@@ -2,6 +2,7 @@
 module Stage1.AntsParser where
 
 import Stage1.AntsBase
+import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNumber(..))
 
 }
 
@@ -18,16 +19,22 @@ import Stage1.AntsBase
   if                { TokenIf }
   else              { TokenElse }
   while             { TokenWhile }
+  break             { TokenBreak }
+
   '{'               { TokenBraceLeft }
   '}'               { TokenBraceRight }
   '('               { TokenParensLeft }
   ')'               { TokenParensRight }
   Ident             { TokenIdentifier $$ }
+  Int               { TokenInteger $$ }
 
   Here              { TokenHere }
   Ahead             { TokenAhead }
   LeftAhead         { TokenLeftAhead }
   RightAhead        { TokenRightAhead }
+
+  Left              { TokenLeft } 
+  Right             { TokenRight }
 
   Friend 			      { TokenFriend }
   Foe 				      { TokenFoe }
@@ -67,10 +74,18 @@ statements : {- empty -}                     { [] }
 statement  : if '(' statements ')' '{' statements '}' {If (reverse $3) (reverse $6) []}
            | if '(' statements ')' '{' statements '}' else '{' statements '}' {If (reverse $3) (reverse $6) (reverse $10)}
            | while '(' statements ')' '{' statements '}' {While (reverse $3) (reverse $6)}
+           | while '{' statements '}' {While [] (reverse $3)}
+           | break                           { Break }
            | command                         { $1 }
 
-command    : Sense direction condition       { Sense $2 $3 }
+command    : Sense sense_direction condition { Sense $2 $3 }
            | Move                            { Move }
+           | Turn direction                  { Turn $2 }
+           | Mark Int                        { Mark $2 }
+           | Unmark Int                      { Unmark $2 }
+           | PickUp                          { PickUp }
+           | Drop                            { Drop }
+           | Flip Int                        { Flip $2 }
 
 
 condition : Friend                           { Friend }
@@ -84,10 +99,13 @@ condition : Friend                           { Friend }
           | Home                             { Home }
           | FoeHome                          { FoeHome }
 
-direction : Here                             { Here }
-          | Ahead                            { Ahead }
-          | LeftAhead                        { LeftAhead }
-          | RightAhead                       { RightAhead }
+direction : Left                             { IsLeft }
+          | Right                            { IsRight }
+
+sense_direction : Here                             { Here }
+                | Ahead                            { Ahead }
+                | LeftAhead                        { LeftAhead }
+                | RightAhead                       { RightAhead }
 
 
 {

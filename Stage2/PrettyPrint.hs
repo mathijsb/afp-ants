@@ -25,7 +25,7 @@ instructionToString i = map toUpper . unwords $ case i of
   AUnmark num          -> ["UNMARK", show num]
   APickUp dest         -> ["PICKUP OR", destToString dest]
   ADrop                -> ["DROP"]
-  ATurn turn           -> ["TURN", show turn]
+  ATurn turn           -> ["TURN", dirToString turn]
   AMove dest           -> ["MOVE OR", destToString dest]
   AFlip i dest         -> ["FLIP", show i, "OR", destToString dest]
   AGoto l              -> ["GOTO", l]
@@ -36,6 +36,9 @@ instructionToString2 :: Instruction -> String
 instructionToString2 (Turn IsLeft state) = "Turn Left " ++ show state
 instructionToString2 (Turn IsRight state) = "Turn Right " ++ show state
 instructionToString2 instruction = show instruction
+
+dirToString IsLeft = "LEFT"
+dirToString IsRight = "RIGHT"
 
 destToString :: ADest -> String
 destToString d = case d of
