@@ -60,6 +60,10 @@ parseAssembler = Assembler
              ["GOTO", label] ->
                yield $ AGoto (readLabel label)
 
+             -- JUMP <z>
+             ["JUMP", z] ->
+               yield $ AJump (readZ z)
+
              -- NOP
              ["NOP"] ->
                yield $ ANop

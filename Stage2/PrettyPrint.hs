@@ -29,6 +29,7 @@ instructionToString i = map toUpper . unwords $ case i of
   AMove dest           -> ["MOVE OR", destToString dest]
   AFlip i dest         -> ["FLIP", show i, "OR", destToString dest]
   AGoto l              -> ["GOTO", l]
+  AJump z              -> ["JUMP", show z]
   ANop                 -> ["NOP"]
 
 instructionToString2 :: Instruction -> String

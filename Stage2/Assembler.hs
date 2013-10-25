@@ -55,9 +55,12 @@ assembleWithInfo as = snd $ assemble' M.empty 0 ins
             AMove dest           -> yield $ Move next (pos dest)
             AFlip ii dest        -> yield $ Flip ii next (pos dest)
             ANop                 -> yield $ Flip 1 next next
-            AGoto l -> if isCyclic l 
+            AGoto l -> if isCyclic (ALabel l)
                          then error $ "Cyclic GOTO at " ++ show n ++ ": " ++ instructionToString i
                          else let (m'', is') = assemble' (M.insert n (m'' M.! (lmap M.! l)) m) x as in (m'', is')
+            AJump z -> if isCyclic (ARelative z)
+                         then error $ "Cyclic JUMP at " ++ show n ++ ": " ++ instructionToString i
+                         else let (m'', is') = assemble' (M.insert n (m'' M.! (n + z)) m) x as in (m'', is')
             
           where yield x = (m', (x, comm) : is)
                 (m', is) = assemble' (M.insert n x m) (x+1) as
@@ -66,10 +69,16 @@ assembleWithInfo as = snd $ assemble' M.empty 0 ins
                 pos x = m' M.! (ref x)
                 next = pos (ARelative 1)
                 comm = show n ++ ". " ++ instructionToString i
-                isCyclic :: Label -> Bool
-                isCyclic l = isCyclic' $ fetch l
-                  where isCyclic' i = case i of
-                                         AGoto l' -> l' == l || isCyclic' (fetch l')
-                                         _        -> False
-                        fetch = (M.!) imap . (M.!) lmap
+                isCyclic :: ADest -> Bool
+                isCyclic d = isCyclic' [n] $ fetch n d
+                  where isCyclic' ns (i, n) =
+                          let rec = isCyclic' (n : ns) . fetch n
+                          in n `elem` ns || case i of
+                              AGoto l -> rec $ ALabel l
+                              AJump z -> rec $ ARelative z
+                              _       -> False
+                        fetch _ (ALabel l)    = let n' = (M.!) lmap l
+                                                in ((M.!) imap n', n')
+                        fetch n (ARelative z) = let n' = n + z
+                                                in ((M.!) imap n', n')
 

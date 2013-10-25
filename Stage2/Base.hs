@@ -40,6 +40,7 @@ Instructions and all labels are considered case-insensitive.
          | DROP
          | TURN <turn>
          | GOTO <label>      -- Pseudo-instruction for jumping to a label
+         | JUMP <z>          -- Pseudo-instruction for jumping <z> lines
          | NOP               -- Explicitly do nothing for one round (shorthand for FLIP 1 OR JUMP 1)
          
 <sense> := LEFTAHEAD
@@ -83,13 +84,14 @@ data AInstruction
    | AMove ADest
    | AFlip Int ADest
    | AGoto Label
+   | AJump Int
    | ANop
    | ALabel1 String -- Used only in Stage1, probably needs to be refactored...
  deriving Show
 
 type Label = String
 data ADest = ALabel Label | ARelative Int
-  deriving Show
+  deriving (Show, Eq)
 newtype Assembler = Assembler { aInstrs :: [([Label], AInstruction)] }
 
 
