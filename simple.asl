@@ -17,33 +17,24 @@ function main {
             }
         }
 
-        while {
-            if (Move) {
-                break
+        while (!Move) {
+            if (Flip 2) {
+                Turn Right
             } else {
-                if (Flip 2) {
-                    Turn Right
-                } else {
-                    Turn Left
-                }
+                Turn Left
             }
         }
     }
 
-    while {
-        if (Sense Here Home) {
-            Drop
-            break
-        } else {
-            if (Move) {
-                
+    while (!Sense Here Home) {
+        while (!Move) {
+            if (Flip 2) {
+                Turn Right
             } else {
-                if (Flip 2) {
-                    Turn Right
-                } else {
-                    Turn Left
-                }
+                Turn Left
             }
         }
     }
+
+    Drop
 }

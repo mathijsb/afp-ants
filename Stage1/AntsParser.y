@@ -21,6 +21,7 @@ import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNum
   while             { TokenWhile }
   break             { TokenBreak }
 
+  '!'               { TokenNot }
   '{'               { TokenBraceLeft }
   '}'               { TokenBraceRight }
   '('               { TokenParensLeft }
@@ -86,6 +87,7 @@ command    : Sense sense_direction condition { Sense $2 $3 }
            | PickUp                          { PickUp }
            | Drop                            { Drop }
            | Flip Int                        { Flip $2 }
+           | '!' command                     { Not $2 }
 
 
 condition : Friend                           { Friend }

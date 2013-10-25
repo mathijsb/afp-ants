@@ -27,6 +27,7 @@ tokens :-
   \}              { \s -> TokenBraceRight }
   \(              { \s -> TokenParensLeft }
   \)              { \s -> TokenParensRight }
+  !               { \s -> TokenNot }
 
   if              { \s -> TokenIf }
   else            { \s -> TokenElse }

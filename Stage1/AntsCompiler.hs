@@ -32,6 +32,7 @@ antsAlgebra = (compileProgram,
 			 ++ [AGoto (context ++ "_WHILE")]
 			 ++ [ALabel1 (context ++ "_IFNOT")]
 
+		compileStatement (Not stm) = (\(flow, context, brk) -> (compileStatement stm ((ARelative 2), context, brk)) ++ [jumpOrGoto flow])
 		compileStatement (Sense direction condition) = (\(flow, context, brk) -> [ASense direction condition flow])
 		compileStatement Move = (\(flow, context, brk) -> [AMove flow])
 		compileStatement (Mark num) = (\(flow, context, brk) -> [AMark num])
@@ -49,3 +50,7 @@ antsAlgebra = (compileProgram,
 
 compileAnts :: Program -> [AInstruction]
 compileAnts = foldAntsAlgebra antsAlgebra
+
+jumpOrGoto :: ADest -> AInstruction
+jumpOrGoto (ALabel l) = AGoto l
+jumpOrGoto (ARelative i) = AJump i
