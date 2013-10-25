@@ -72,12 +72,17 @@ func  : function Ident '{' statements '}'    { Function $2 (reverse $4) }
 statements : {- empty -}                     { [] }
            | statements statement            { $2 : $1 }
 
-statement  : if '(' statements ')' '{' statements '}' {If (reverse $3) (reverse $6) []}
-           | if '(' statements ')' '{' statements '}' else '{' statements '}' {If (reverse $3) (reverse $6) (reverse $10)}
-           | while '(' statements ')' '{' statements '}' {While (reverse $3) (reverse $6)}
-           | while '{' statements '}' {While [] (reverse $3)}
-           | break                           { Break }
-           | command                         { $1 }
+statement  : if_statement                                   { $1 [] }
+           | if_statement else if_statement                 { $1 ([$3 []]) }
+           | if_statement else '{' statements '}'           { $1 (reverse $4) }
+
+           | while '(' statements ')' '{' statements '}'    { While (reverse $3) (reverse $6)}
+           | while '{' statements '}'                       { While [] (reverse $3)}
+
+           | break                                          { Break }
+           | command                                        { $1 }
+
+if_statement : if '(' statements ')' '{' statements '}'  { If (reverse $3) (reverse $6) }
 
 command    : Sense sense_direction condition { Sense $2 $3 }
            | Move                            { Move }
@@ -111,6 +116,8 @@ sense_direction : Here                             { Here }
 
 
 {
+
+toList x = [x]
 
 -- | Parsing error handler.
 parseError :: [AntsToken] -> a

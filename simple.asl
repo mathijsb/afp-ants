@@ -11,10 +11,8 @@ function main {
             Turn Left
             Turn Left
             Turn Left
-        } else {
-            if (PickUp) {
-                break
-            }
+        } else if (PickUp) {
+            break
         }
 
         while (!Move) {

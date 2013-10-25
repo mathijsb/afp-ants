@@ -83,6 +83,7 @@ data Statement = Sense SenseDir Condition
 			   | Turn LeftOrRight
 			   | Flip Int
 			   | If [Statement] [Statement] [Statement]
+			   -- | IfNew [([Statement], [Statement])] [Statement]
 			   | While [Statement] [Statement]
 			   | Break
 			   | Not Statement
