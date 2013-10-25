@@ -39,7 +39,7 @@ antsAlgebra = (compileProgram,
 		compileStatement PickUp = (\(flow, context, brk) -> [APickUp flow])
 		compileStatement Drop = (\(flow, context, brk) -> [ADrop])
 		compileStatement (Turn dir) = (\(flow, context, brk) -> [ATurn dir])
-		compileStatement (Flip num) = (\(flow, context, brk) -> [ADrop])
+		compileStatement (Flip num) = (\(flow, context, brk) -> [AFlip num flow])
 		compileStatement Break = (\(flow, context, brk) -> case brk of 
 				Just x -> [AGoto x]
 				Nothing -> error "Break without an enclosing while statement")
