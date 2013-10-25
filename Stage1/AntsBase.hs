@@ -5,6 +5,7 @@ module Stage1.AntsBase
 		Function(..),
 		SenseDir(..),
 		Condition(..),
+		Expression(..),
 		LeftOrRight(..),
 		Statement(..),
 		AntsAlgebra,
@@ -31,6 +32,7 @@ data AntsToken =
 	TokenParensRight		|
 	TokenBreak              |
 	TokenNot 				|
+    TokenTrue               |
 
 	TokenIdentifier Ident 	|
 	TokenInteger Int        |
@@ -74,26 +76,28 @@ data Program = Program [Function]
 data Function = Function Ident [Statement]
 	deriving (Show)
 
-data Statement = Sense SenseDir Condition
-			   | Move
-			   | Mark MarkerNumber
-			   | Unmark MarkerNumber
-			   | PickUp
-			   | Drop
-			   | Turn LeftOrRight
-			   | Flip Int
-			   | If [Statement] [Statement] [Statement]
-			   -- | IfNew [([Statement], [Statement])] [Statement]
-			   | While [Statement] [Statement]
+data Statement = If Expression [Statement] [Statement]
+			   | While Expression [Statement]
 			   | Break
-			   | Not Statement
+			   | Expr Expression
 	deriving (Show)
 
+data Expression = Sense SenseDir Condition
+			    | Move
+			    | Mark MarkerNumber
+			    | Unmark MarkerNumber
+			    | PickUp
+			    | Drop
+			    | Turn LeftOrRight
+			    | Flip Int
+			    | Not Expression
+			    | BoolExpression Bool
+	deriving (Show)
 
 ------------------------------------------
 
 -- Type for an algebra folding Ants programs.
-type AntsAlgebra program function statement =
+type AntsAlgebra program function statement expression =
 	(
 		-- Program
 		([function] -> program),
@@ -102,19 +106,23 @@ type AntsAlgebra program function statement =
 		(Ident -> [statement] -> function),
 
 		-- Statement
-		(([statement] -> [statement] -> [statement] -> statement),
-		 ([statement] -> [statement] -> statement),
-		 (Statement -> statement))
+		((expression -> [statement] -> [statement] -> statement),
+		 (expression -> [statement] -> statement),
+		 statement,
+		 expression -> statement),
 
-		
+		(Expression -> expression)
+
 	)
 
 -- | Fold function for the ants algebra.
-foldAntsAlgebra :: AntsAlgebra p f s -> Program -> p
-foldAntsAlgebra (p, f, (s1, s2, s3)) = foldProgram
+foldAntsAlgebra :: AntsAlgebra p f s e -> Program -> p
+foldAntsAlgebra (p, f, (s1, s2, s3, s4), e) = foldProgram
 	where
 		foldProgram (Program functions) = p (map foldFunction functions)
 		foldFunction (Function ident statements) = f ident (map foldStatement statements)
-		foldStatement (If sts1 sts2 sts3) = s1 (map foldStatement sts1) (map foldStatement sts2) (map foldStatement sts3)
-		foldStatement (While sts1 sts2) = s2 (map foldStatement sts1) (map foldStatement sts2)
-		foldStatement statement = s3 statement
+		foldStatement (If expr sts2 sts3) = s1 (foldExpression expr) (map foldStatement sts2) (map foldStatement sts3)
+		foldStatement (While expr sts2) = s2 (foldExpression expr) (map foldStatement sts2)
+		foldStatement Break = s3
+		foldStatement (Expr expr) = s4 . foldExpression $ expr
+		foldExpression expression = e expression

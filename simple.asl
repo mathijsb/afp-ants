@@ -8,7 +8,7 @@
 function main {
 
     -- Iterate while navigating to the food.
-    while {
+    while (true) {
         if (Sense Here Home) {
             Turn Left
             Turn Left

@@ -10,40 +10,45 @@ import Stage2.Base
 
 type ProgramFlow = (ADest, String, Maybe String)
 
-antsAlgebra :: AntsAlgebra [AInstruction] [AInstruction] (ProgramFlow -> [AInstruction])
+antsAlgebra :: AntsAlgebra [AInstruction] [AInstruction] (ProgramFlow -> [AInstruction]) (ProgramFlow -> [AInstruction])
 antsAlgebra = (compileProgram,
 			   compileFunction,
-			   (compileStatementIf, compileStatementWhile, compileStatement))
+			   (compileStatementIf, compileStatementWhile, compileStatementBreak, compileStatementExpr),
+			   compileExpression)
 
 	where
 		compileProgram instrs = [ALabel1 "START"] ++ concat instrs ++ [AGoto "START"]
 		compileFunction ident sts = [ALabel1 ident] ++ (applyFlow sts (ARelative 1) ident Nothing)
 
-		compileStatementIf sts1 sts2 sts3 (flow, context, brk) = 
-			    (applyFlow sts1 (ALabel (context ++ "_ELSE")) (context ++ "_ELSE") brk) 
+		compileStatementIf expr sts2 sts3 (flow, context, brk) = 
+			    expr (ALabel (context ++ "_ELSE"), context ++ "_IF", Nothing) --- (applyFlow sts1 (ALabel (context ++ "_ELSE")) (context ++ "_ELSE") brk) 
 			 ++ (applyFlow sts2 (ARelative 1) (context ++ "_IF") brk) 
 			 ++ [ALabel1 (context ++ "_ELSE")]
 			 ++ (applyFlow sts3 (ARelative 1) (context ++ "_ELSE") brk) 
 
-		compileStatementWhile sts1 sts2 (flow, context, brk) = 
+		compileStatementWhile expr sts2 (flow, context, brk) = 
 				[ALabel1 (context ++ "_WHILE")]
-			 ++ (applyFlow sts1 (ALabel (context ++ "_IFNOT")) (context ++ "_WHILE") Nothing) 
+			 ++ expr (ALabel (context ++ "_IFNOT"), context ++ "_WHILE", Nothing) -- (applyFlow sts1 (ALabel (context ++ "_IFNOT")) (context ++ "_WHILE") Nothing) 
 			 ++ (applyFlow sts2 (ARelative 1) (context ++ "_WHILE") (Just (context ++ "_IFNOT"))) 
 			 ++ [AGoto (context ++ "_WHILE")]
 			 ++ [ALabel1 (context ++ "_IFNOT")]
 
-		compileStatement (Not stm) = (\(flow, context, brk) -> (compileStatement stm ((ARelative 2), context, brk)) ++ [jumpOrGoto flow])
-		compileStatement (Sense direction condition) = (\(flow, context, brk) -> [ASense direction condition flow])
-		compileStatement Move = (\(flow, context, brk) -> [AMove flow])
-		compileStatement (Mark num) = (\(flow, context, brk) -> [AMark num])
-		compileStatement (Unmark num) = (\(flow, context, brk) -> [AUnmark num])
-		compileStatement PickUp = (\(flow, context, brk) -> [APickUp flow])
-		compileStatement Drop = (\(flow, context, brk) -> [ADrop])
-		compileStatement (Turn dir) = (\(flow, context, brk) -> [ATurn dir])
-		compileStatement (Flip num) = (\(flow, context, brk) -> [AFlip num flow])
-		compileStatement Break = (\(flow, context, brk) -> case brk of 
+		compileStatementBreak (flow, context, brk) = case brk of 
 				Just x -> [AGoto x]
-				Nothing -> error "Break without an enclosing while statement")
+				Nothing -> error "Break without an enclosing while statement"
+
+		compileStatementExpr expr f = expr f
+
+		compileExpression (Not stm) = (\(flow, context, brk) -> (compileExpression stm ((ARelative 2), context, brk)) ++ [jumpOrGoto flow])
+		compileExpression (Sense direction condition) = (\(flow, context, brk) -> [ASense direction condition flow])
+		compileExpression Move = (\(flow, context, brk) -> [AMove flow])
+		compileExpression (Mark num) = (\(flow, context, brk) -> [AMark num])
+		compileExpression (Unmark num) = (\(flow, context, brk) -> [AUnmark num])
+		compileExpression PickUp = (\(flow, context, brk) -> [APickUp flow])
+		compileExpression Drop = (\(flow, context, brk) -> [ADrop])
+		compileExpression (Turn dir) = (\(flow, context, brk) -> [ATurn dir])
+		compileExpression (Flip num) = (\(flow, context, brk) -> [AFlip num flow])
+		compileExpression (BoolExpression true) = (\(flow, context, brk) -> [])
 
 		applyFlow sts dest context brk = concat . zipWith ($) sts $ map (\i -> (dest, context ++ "_" ++ show i, brk)) [1..]
 

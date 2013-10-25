@@ -20,6 +20,7 @@ import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNum
   else              { TokenElse }
   while             { TokenWhile }
   break             { TokenBreak }
+  true              { TokenTrue }
 
   '!'               { TokenNot }
   '{'               { TokenBraceLeft }
@@ -76,24 +77,23 @@ statement  : if_statement                                   { $1 [] }
            | if_statement else if_statement                 { $1 ([$3 []]) }
            | if_statement else '{' statements '}'           { $1 (reverse $4) }
 
-           | while '(' statements ')' '{' statements '}'    { While (reverse $3) (reverse $6)}
-           | while '{' statements '}'                       { While [] (reverse $3)}
+           | while '(' expression ')' '{' statements '}'    { While $3 (reverse $6)}
 
            | break                                          { Break }
-           | command                                        { $1 }
+           | expression                                     { Expr $1 }
 
-if_statement : if '(' statements ')' '{' statements '}'  { If (reverse $3) (reverse $6) }
+if_statement : if '(' expression ')' '{' statements '}'  { If $3 (reverse $6) }
 
-command    : Sense sense_direction condition { Sense $2 $3 }
-           | Move                            { Move }
-           | Turn direction                  { Turn $2 }
-           | Mark Int                        { Mark $2 }
-           | Unmark Int                      { Unmark $2 }
-           | PickUp                          { PickUp }
-           | Drop                            { Drop }
-           | Flip Int                        { Flip $2 }
-           | '!' command                     { Not $2 }
-
+expression    : Sense sense_direction condition { Sense $2 $3 }
+              | Move                            { Move }
+              | Turn direction                  { Turn $2 }
+              | Mark Int                        { Mark $2 }
+              | Unmark Int                      { Unmark $2 }
+              | PickUp                          { PickUp }
+              | Drop                            { Drop }
+              | Flip Int                        { Flip $2 }
+              | '!' expression                  { Not $2 }
+              | true                            { BoolExpression True }
 
 condition : Friend                           { Friend }
           | Foe                              { Foe }

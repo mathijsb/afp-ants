@@ -33,7 +33,8 @@ tokens :-
   else            { \s -> TokenElse }
   while           { \s -> TokenWhile }
   break           { \s -> TokenBreak }
-  
+  true            { \s -> TokenTrue }
+
   Left            { \s -> TokenLeft }
   Right           { \s -> TokenRight }
 
