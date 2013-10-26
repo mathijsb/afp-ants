@@ -52,18 +52,17 @@ antsAlgebra = (compileProgram,
 
 		compileStatementExpr expr f = expr f
 
-		compileExpression (Not stm) f = (\(flow, context, brk) -> (compileExpression stm f ((ARelative 2), context, brk)) ++ [jumpOrGoto flow])
-		compileExpression (Sense direction condition) f = (\(flow, context, brk) -> [ASense direction condition flow])
-		compileExpression Move f = (\(flow, context, brk) -> [AMove flow])
-		compileExpression (Mark num) f = (\(flow, context, brk) -> [AMark num])
-		compileExpression (Unmark num) f = (\(flow, context, brk) -> [AUnmark num])
-		compileExpression PickUp f = (\(flow, context, brk) -> [APickUp flow])
-		compileExpression Drop f = (\(flow, context, brk) -> [ADrop])
-		compileExpression (Turn dir) f  = (\(flow, context, brk) -> [ATurn dir])
-		compileExpression (Flip num) f = (\(flow, context, brk) -> [AFlip num flow])
-		compileExpression (BoolExpression true) f = (\(flow, context, brk) -> [])
-
-		compileExpression (FunctionCall name) f = (f name)
+		compileExpression (Not stm) f (flow, context, brk) = (compileExpression stm f ((ARelative 2), context, brk)) ++ [jumpOrGoto flow]
+		compileExpression (Sense direction condition) f (flow, context, brk) = [ASense direction condition flow]
+		compileExpression Move f (flow, context, brk) = [AMove flow]
+		compileExpression (Mark num) f _ = [AMark num]
+		compileExpression (Unmark num) f _ = [AUnmark num]
+		compileExpression PickUp f (flow, context, brk) = [APickUp flow]
+		compileExpression Drop f _ = [ADrop]
+		compileExpression (Turn dir) f _ = [ATurn dir]
+		compileExpression (Flip num) f (flow, context, brk) = [AFlip num flow]
+		compileExpression (BoolExpression true) f _ = []
+		compileExpression (FunctionCall name) f flow = f name flow
 
 		applyFlow sts dest context brk f = concat . zipWith ($) (map ($f) sts) $ map (\i -> (dest, context ++ "_" ++ show i, brk)) [1..]
 
