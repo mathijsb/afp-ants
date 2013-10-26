@@ -63,6 +63,10 @@ antsAlgebra = (compileProgram,
 		compileExpression (Flip num) f (flow, context, brk) = [AFlip num flow]
 		compileExpression (BoolExpression true) f _ = []
 		compileExpression (FunctionCall name) f flow = f name flow
+		compileExpression (And expr1 expr2) f flow = (compileExpression expr1 f flow) ++ (compileExpression expr2 f flow)
+		compileExpression (Or expr1 expr2) f (flow, context, brk) = 
+				(compileExpression expr1 f (ARelative 1, context, brk)) 
+			 ++ (compileExpression expr2 f (flow, context, brk)) 
 
 		applyFlow sts dest context brk f = concat . zipWith ($) (map ($f) sts) $ map (\i -> (dest, context ++ "_" ++ show i, brk)) [1..]
 

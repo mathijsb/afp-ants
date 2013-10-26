@@ -7,6 +7,10 @@
 
 function main {
 
+    if ((Flip 2 || Flip 3) && (Flip 4 || Flip 6)) {
+        Sense Here Home
+    }
+
     -- Iterate while navigating to the food.
     while (true) {
         if (Sense Here Home) {

@@ -28,6 +28,8 @@ tokens :-
   \(              { \s -> TokenParensLeft }
   \)              { \s -> TokenParensRight }
   !               { \s -> TokenNot }
+  &&              { \s -> TokenAnd }
+  \|\|              { \s -> TokenOr }
 
   if              { \s -> TokenIf }
   else            { \s -> TokenElse }

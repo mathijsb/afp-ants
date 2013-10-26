@@ -33,6 +33,8 @@ data AntsToken =
 	TokenBreak              |
 	TokenNot 				|
     TokenTrue               |
+    TokenAnd 				|
+    TokenOr 				|
 
 	TokenIdentifier Ident 	|
 	TokenInteger Int        |
@@ -93,6 +95,8 @@ data Expression = Sense SenseDir Condition
 			    | Not Expression
 			    | BoolExpression Bool
 			    | FunctionCall String
+			    | And Expression Expression
+			    | Or Expression Expression
 
 	deriving (Show)
 
