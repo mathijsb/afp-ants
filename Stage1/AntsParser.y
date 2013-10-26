@@ -91,7 +91,13 @@ expression : expression1 '&&' expression      { And $1 $3 }
            | expression1 '||' expression      { Or $1 $3 }
            | expression1                      { $1 }
 
-expression1   : Sense sense_direction condition { Sense $2 $3 }
+expression1 : command                           { ExpressionCommand $1 }
+              | '!' expression1                 { Not $2 }
+              | true                            { BoolExpression True }
+              | Ident '(' ')'                   { FunctionCall $1 }
+              | '(' expression ')'              { $2 }
+
+command : Sense sense_direction condition { Sense $2 $3 }
               | Move                            { Move }
               | Turn direction                  { Turn $2 }
               | Mark Int                        { Mark $2 }
@@ -99,10 +105,6 @@ expression1   : Sense sense_direction condition { Sense $2 $3 }
               | PickUp                          { PickUp }
               | Drop                            { Drop }
               | Flip Int                        { Flip $2 }
-              | '!' expression1                 { Not $2 }
-              | true                            { BoolExpression True }
-              | Ident '(' ')'                   { FunctionCall $1 }
-              | '(' expression ')'              { $2 }
 
 condition : Friend                           { Friend }
           | Foe                              { Foe }

@@ -18,11 +18,13 @@ antsAlgebra :: AntsAlgebra [AInstruction]
 						   (FunctionLookup -> LabeledFunction) 
 						   (FunctionLookup -> ProgramFlow -> [AInstruction]) 
 						   (FunctionLookup -> ProgramFlow -> [AInstruction])
+						   (FunctionLookup -> ProgramFlow -> [AInstruction])
 
 antsAlgebra = (compileProgram,
 			   compileFunction,
 			   (compileStatementIf, compileStatementWhile, compileStatementBreak, compileStatementExpr),
-			   compileExpression)
+			   (compileExpressionCommand, compileExpressionNot, compileExpressionBool, compileExpressionFunctionCall, compileExpressionAnd, compileExpressionOr),
+			   compileCommand)
 
 	where
 
@@ -52,21 +54,21 @@ antsAlgebra = (compileProgram,
 
 		compileStatementExpr expr f = expr f
 
-		compileExpression (Not stm) f (flow, context, brk) = (compileExpression stm f ((ARelative 2), context, brk)) ++ [jumpOrGoto flow]
-		compileExpression (Sense direction condition) f (flow, context, brk) = [ASense direction condition flow]
-		compileExpression Move f (flow, context, brk) = [AMove flow]
-		compileExpression (Mark num) f _ = [AMark num]
-		compileExpression (Unmark num) f _ = [AUnmark num]
-		compileExpression PickUp f (flow, context, brk) = [APickUp flow]
-		compileExpression Drop f _ = [ADrop]
-		compileExpression (Turn dir) f _ = [ATurn dir]
-		compileExpression (Flip num) f (flow, context, brk) = [AFlip num flow]
-		compileExpression (BoolExpression true) f _ = []
-		compileExpression (FunctionCall name) f flow = f name flow
-		compileExpression (And expr1 expr2) f flow = (compileExpression expr1 f flow) ++ (compileExpression expr2 f flow)
-		compileExpression (Or expr1 expr2) f (flow, context, brk) = 
-				(compileExpression expr1 f (ARelative 1, context, brk)) 
-			 ++ (compileExpression expr2 f (flow, context, brk)) 
+		compileExpressionCommand = id
+		compileExpressionNot expr f (flow, context, brk) = (expr f (ARelative 2, context, brk)) ++ [jumpOrGoto flow]
+		compileExpressionBool bool _ _ = []
+		compileExpressionFunctionCall name f = f name
+		compileExpressionAnd expr1 expr2 f flow = (expr1 f flow) ++ (expr2 f flow)
+		compileExpressionOr expr1 expr2 f (flow, context, brk) = (expr1 f (ARelative 1, context, brk)) ++ (expr2 f (flow, context, brk)) 
+
+		compileCommand (Sense direction condition) f (flow, context, brk) = [ASense direction condition flow]
+		compileCommand Move f (flow, context, brk) = [AMove flow]
+		compileCommand (Mark num) f _ = [AMark num]
+		compileCommand (Unmark num) f _ = [AUnmark num]
+		compileCommand PickUp f (flow, context, brk) = [APickUp flow]
+		compileCommand Drop f _ = [ADrop]
+		compileCommand (Turn dir) f _ = [ATurn dir]
+		compileCommand (Flip num) f (flow, context, brk) = [AFlip num flow]
 
 		applyFlow sts dest context brk f = concat . zipWith ($) (map ($f) sts) $ map (\i -> (dest, context ++ "_" ++ show i, brk)) [1..]
 
