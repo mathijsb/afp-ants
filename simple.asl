@@ -20,27 +20,27 @@ function main {
         -- When a move is not possible randomly turn left or right
         -- until a move is possible
         while (!Move) {
-            if (Flip 2) {
-                Turn Right
-            } else {
-                Turn Left
-            }
+            moveCell()
         }
     }
 
     -- Iterate while navigating home.
     while (!Sense Here Home) {
-
-        -- When a move is not possible randomly turn left or right
-        -- until a move is possible
-        while (!Move) {
-            if (Flip 2) {
-                Turn Right
-            } else {
-                Turn Left
-            }
-        }
+        moveCell()
     }
 
     Drop
+}
+
+function moveCell {
+
+    -- When a move is not possible randomly turn left or right
+    -- until a move is possible
+    while (!Move) {
+        if (Flip 2) {
+            Turn Right
+        } else {
+            Turn Left
+        }
+    }
 }

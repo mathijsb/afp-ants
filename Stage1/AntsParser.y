@@ -94,6 +94,7 @@ expression    : Sense sense_direction condition { Sense $2 $3 }
               | Flip Int                        { Flip $2 }
               | '!' expression                  { Not $2 }
               | true                            { BoolExpression True }
+              | Ident '(' ')'                   { FunctionCall $1 }
 
 condition : Friend                           { Friend }
           | Foe                              { Foe }

@@ -92,6 +92,8 @@ data Expression = Sense SenseDir Condition
 			    | Flip Int
 			    | Not Expression
 			    | BoolExpression Bool
+			    | FunctionCall String
+
 	deriving (Show)
 
 ------------------------------------------
