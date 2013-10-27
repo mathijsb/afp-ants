@@ -29,7 +29,16 @@ tokens :-
   \)              { \s -> TokenParensRight }
   !               { \s -> TokenNot }
   &&              { \s -> TokenAnd }
-  \|\|              { \s -> TokenOr }
+  \|\|            { \s -> TokenOr }
+  times           { \s -> TokenTimes }
+  \,              { \s -> TokenComma }
+
+  ==              { \s -> TokenComparison CEQ }
+  !=              { \s -> TokenComparison CNE }
+  \<               { \s -> TokenComparison CLT }
+  \>               { \s -> TokenComparison CGT }
+  \<=              { \s -> TokenComparison CLE }
+  \>=              { \s -> TokenComparison CGE }
 
   if              { \s -> TokenIf }
   else            { \s -> TokenElse }

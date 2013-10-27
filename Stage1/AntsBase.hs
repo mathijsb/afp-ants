@@ -9,6 +9,7 @@ module Stage1.AntsBase
 		LeftOrRight(..),
 		Statement(..),
 		Command(..),
+		ComparisonType(..),
 		AntsAlgebra,
 		foldAntsAlgebra
 	) 
@@ -36,6 +37,10 @@ data AntsToken =
     TokenTrue               |
     TokenAnd 				|
     TokenOr 				|
+    TokenTimes 				|
+    TokenComma              |
+
+    TokenComparison ComparisonType |
 
 	TokenIdentifier Ident 	|
 	TokenInteger Int        |
@@ -83,6 +88,7 @@ data Statement = If Expression [Statement] [Statement]
 			   | While Expression [Statement]
 			   | Break
 			   | Expr Expression
+			   | Times String Int [Statement]
 	deriving (Show)
 
 data Expression = ExpressionCommand Command
@@ -91,7 +97,11 @@ data Expression = ExpressionCommand Command
 			    | FunctionCall String
 			    | And Expression Expression
 			    | Or Expression Expression
+			    | Comparison ComparisonType String Int
+
 	deriving (Show)
+
+data ComparisonType = CLT | CGT | CLE | CGE | CEQ | CNE deriving (Show, Eq)
 
 data Command = Sense SenseDir Condition
 			 	| Move
@@ -118,7 +128,8 @@ type AntsAlgebra program function statement expression command =
 		((expression -> [statement] -> [statement] -> statement),
 		 (expression -> [statement] -> statement),
 		 statement,
-		 expression -> statement),
+		 expression -> statement,
+		 String -> Int -> [statement] -> statement),
 
 		-- Expression
 		((command -> expression),
@@ -126,7 +137,8 @@ type AntsAlgebra program function statement expression command =
 		 Bool -> expression,
 		 (String -> expression),
 		 (expression -> expression -> expression),
-		 (expression -> expression -> expression)),
+		 (expression -> expression -> expression),
+		 ComparisonType -> String -> Int -> expression),
 
 		-- Command
 		(Command -> command)
@@ -135,7 +147,7 @@ type AntsAlgebra program function statement expression command =
 
 -- | Fold function for the ants algebra.
 foldAntsAlgebra :: AntsAlgebra p f s e c -> Program -> p
-foldAntsAlgebra (p, f, (s1, s2, s3, s4), (e1, e2, e3, e4, e5, e6), c) = foldProgram
+foldAntsAlgebra (p, f, (s1, s2, s3, s4, s5), (e1, e2, e3, e4, e5, e6, e7), c) = foldProgram
 	where
 		foldProgram (Program functions) = p (map foldFunction functions)
 		foldFunction (Function ident statements) = f ident (map foldStatement statements)
@@ -143,6 +155,7 @@ foldAntsAlgebra (p, f, (s1, s2, s3, s4), (e1, e2, e3, e4, e5, e6), c) = foldProg
 		foldStatement (While expr sts2) = s2 (foldExpression expr) (map foldStatement sts2)
 		foldStatement Break = s3
 		foldStatement (Expr expr) = s4 . foldExpression $ expr
+		foldStatement (Times var times sts) = s5 var times (map foldStatement sts)
 
 		foldExpression (ExpressionCommand command) = e1 . foldCommand $ command
 		foldExpression (Not expression) = e2 (foldExpression expression)
@@ -150,5 +163,6 @@ foldAntsAlgebra (p, f, (s1, s2, s3, s4), (e1, e2, e3, e4, e5, e6), c) = foldProg
 		foldExpression (FunctionCall str) = e4 str
 		foldExpression (And expr1 expr2) = e5 (foldExpression expr1) (foldExpression expr2)
 		foldExpression (Or expr1 expr2) = e6 (foldExpression expr1) (foldExpression expr2)
+		foldExpression (Comparison eq var val) = e7 eq var val
 
 		foldCommand command = c command

@@ -22,6 +22,8 @@ import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNum
   break             { TokenBreak }
   true              { TokenTrue }
 
+  times             { TokenTimes }
+  ','               { TokenComma }
   '!'               { TokenNot }
   '{'               { TokenBraceLeft }
   '}'               { TokenBraceRight }
@@ -31,6 +33,8 @@ import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNum
   Int               { TokenInteger $$ }
   '&&'              { TokenAnd }
   '||'              { TokenOr }
+
+  comparison        { TokenComparison $$ }
 
   Here              { TokenHere }
   Ahead             { TokenAhead }
@@ -83,6 +87,7 @@ statement  : if_statement                                   { $1 [] }
 
            | break                                          { Break }
            | expression                                     { Expr $1 }
+           | times '(' Ident ',' Int ')' '{' statements '}' { Times $3 $5 $8 }
 
 if_statement : if '(' expression ')' '{' statements '}'  { If $3 (reverse $6) }
 
@@ -91,11 +96,12 @@ expression : expression1 '&&' expression      { And $1 $3 }
            | expression1 '||' expression      { Or $1 $3 }
            | expression1                      { $1 }
 
-expression1 : command                           { ExpressionCommand $1 }
-              | '!' expression1                 { Not $2 }
-              | true                            { BoolExpression True }
-              | Ident '(' ')'                   { FunctionCall $1 }
-              | '(' expression ')'              { $2 }
+expression1 : command                         { ExpressionCommand $1 }
+            | '!' expression1                 { Not $2 }
+            | true                            { BoolExpression True }
+            | Ident '(' ')'                   { FunctionCall $1 }
+            | '(' expression ')'              { $2 }
+            | Ident comparison Int            { Comparison $2 $1 $3 }
 
 command : Sense sense_direction condition { Sense $2 $3 }
               | Move                            { Move }
