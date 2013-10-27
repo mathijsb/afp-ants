@@ -5,13 +5,13 @@
 -- alternates between finding food and retrieving food.
 --
 
-function main {
+function main() {
 
     -- Iterate while navigating to the food.
     while (true) {
         if (Sense Here Home) {
             times(i, 4) {
-                if (i < 4) {
+                if (i <= 4) {
                     Turn Left
                 }
             }
@@ -34,7 +34,7 @@ function main {
     Drop
 }
 
-function moveCell {
+function moveCell() {
 
     -- When a move is not possible randomly turn left or right
     -- until a move is possible

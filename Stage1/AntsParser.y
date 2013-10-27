@@ -74,7 +74,7 @@ program  	: funcs    	     	   			         { Program $1 }
 funcs : {- empty -}           	             { [] }
       | funcs	func     	                     { $2 : $1 }
 
-func  : function Ident '{' statements '}'    { Function $2 (reverse $4) }
+func  : function Ident '(' function_args_decls ')' '{' statements '}'    { Function $2 (reverse $7) (reverse $4) }
 
 statements : {- empty -}                     { [] }
            | statements statement            { $2 : $1 }
@@ -99,11 +99,19 @@ expression : expression1 '&&' expression      { And $1 $3 }
 expression1 : command                         { ExpressionCommand $1 }
             | '!' expression1                 { Not $2 }
             | true                            { BoolExpression True }
-            | Ident '(' ')'                   { FunctionCall $1 }
+            | Ident '(' function_args ')'     { FunctionCall $1 (reverse $3) }
             | '(' expression ')'              { $2 }
             | Ident comparison Int            { Comparison $2 $1 $3 }
 
-command : Sense sense_direction condition { Sense $2 $3 }
+function_args_decls : {- empty -}                   { [] }
+                    | function_args_decls ',' Ident { $3 : $1 }
+                    | Ident                         { [$1] }
+
+function_args : {- empty -}                   { [] }
+              | function_args ',' Int         { $3 : $1 }
+              | Int                           { [$1] }
+
+command : Sense sense_direction condition       { Sense $2 $3 }
               | Move                            { Move }
               | Turn direction                  { Turn $2 }
               | Mark Int                        { Mark $2 }
