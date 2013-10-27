@@ -6,44 +6,43 @@
 --
 
 function main {
-    while {
-        if (Sense Here Home) {
-            Turn Left
-            Turn Left
-            Turn Left
-        } else {
-            if (PickUp) {
-                break
-            }
-        }
 
-        while {
-            if (Move) {
-                break
-            } else {
-                if (Flip 2) {
-                    Turn Right
-                } else {
+    -- Iterate while navigating to the food.
+    while (true) {
+        if (Sense Here Home) {
+            times(i, 4) {
+                if (i < 4) {
                     Turn Left
                 }
             }
+        } else if (PickUp) {
+            break
+        }
+
+        -- When a move is not possible randomly turn left or right
+        -- until a move is possible
+        while (!Move) {
+            moveCell()
         }
     }
 
-    while {
-        if (Sense Here Home) {
-            Drop
-            break
+    -- Iterate while navigating home.
+    while (!Sense Here Home) {
+        moveCell()
+    }
+
+    Drop
+}
+
+function moveCell {
+
+    -- When a move is not possible randomly turn left or right
+    -- until a move is possible
+    while (!Move) {
+        if (Flip 2) {
+            Turn Right
         } else {
-            if (Move) {
-                
-            } else {
-                if (Flip 2) {
-                    Turn Right
-                } else {
-                    Turn Left
-                }
-            }
+            Turn Left
         }
     }
 }

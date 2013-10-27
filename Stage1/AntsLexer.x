@@ -27,12 +27,25 @@ tokens :-
   \}              { \s -> TokenBraceRight }
   \(              { \s -> TokenParensLeft }
   \)              { \s -> TokenParensRight }
+  !               { \s -> TokenNot }
+  &&              { \s -> TokenAnd }
+  \|\|            { \s -> TokenOr }
+  times           { \s -> TokenTimes }
+  \,              { \s -> TokenComma }
+
+  ==              { \s -> TokenComparison CEQ }
+  !=              { \s -> TokenComparison CNE }
+  \<               { \s -> TokenComparison CLT }
+  \>               { \s -> TokenComparison CGT }
+  \<=              { \s -> TokenComparison CLE }
+  \>=              { \s -> TokenComparison CGE }
 
   if              { \s -> TokenIf }
   else            { \s -> TokenElse }
   while           { \s -> TokenWhile }
   break           { \s -> TokenBreak }
-  
+  true            { \s -> TokenTrue }
+
   Left            { \s -> TokenLeft }
   Right           { \s -> TokenRight }
 
