@@ -70,7 +70,14 @@ antsAlgebra = (compileProgram,
 		compileExpressionFunctionCall name f = f name
 		compileExpressionAnd expr1 expr2 f flow = (expr1 f flow) ++ (expr2 f flow)
 		compileExpressionOr expr1 expr2 f (flow, context, brk, env) = (expr1 f (ARelative 1, context, brk, env)) ++ (expr2 f (flow, context, brk, env)) 
-		compileExpressionEquals ctype var val f (flow, context, brk, env) = if (env M.! var) == val then [jumpOrGoto flow] else []
+		compileExpressionEquals ctype var val f (flow, context, brk, env) = if (op ctype (env M.! var) val) then [] else [jumpOrGoto flow]
+			where
+				op CLT = (<)
+				op CGT = (>)
+				op CLE = (<=)
+				op CGE = (>=)
+				op CEQ = (==)
+				op CNE = (/=)
 
 		compileCommand (Sense direction condition) f (flow, context, brk, env) = [ASense direction condition flow]
 		compileCommand Move f (flow, context, brk, env) = [AMove flow]
