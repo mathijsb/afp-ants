@@ -11,10 +11,10 @@ import Stage1.AntsBase
 import Stage2.Base
 import Debug.Trace
 
-type FunctionLookup = String -> (ProgramFlow -> [AInstruction])
+type FunctionLookup = String -> ([String], ProgramFlow -> [AInstruction])
 type Environment = M.Map String Int
 type ProgramFlow = (ADest, String, Maybe String, Environment)
-type LabeledFunction = (String, ProgramFlow -> [AInstruction])
+type LabeledFunction = (String, ([String], ProgramFlow -> [AInstruction]))
 
 antsAlgebra :: AntsAlgebra [AInstruction] 
 						   (FunctionLookup -> LabeledFunction) 
@@ -30,12 +30,12 @@ antsAlgebra = (compileProgram,
 
 	where
 
-		compileProgram instrs = [ALabel1 "START"] ++ (lookupFunction "main" $ (ARelative 1, "", Nothing, M.empty)) ++ [AGoto "START"]
+		compileProgram instrs = [ALabel1 "START"] ++ (((snd . lookupFunction) "main") (ARelative 1, "", Nothing, M.empty)) ++ [AGoto "START"]
 			where lookupFunction name = case lookup name . map ($lookupFunction) $ instrs of
 				 	Just e -> e
 				 	Nothing -> error $ "function '" ++ name ++ "' is invoked but not defined."
 
-		compileFunction ident sts f = (ident, ((\(flow, context, brk, env) -> (applyFlow sts flow context brk f env))))
+		compileFunction ident decls sts f = (ident, (decls, ((\(flow, context, brk, env) -> (applyFlow sts flow context brk f env)))))
 
 		compileStatementIf expr sts2 sts3 f (flow, context, brk, env) = 
 				case expressionInstructions of
@@ -67,10 +67,21 @@ antsAlgebra = (compileProgram,
 		compileExpressionCommand = id
 		compileExpressionNot expr f (flow, context, brk, env) = (expr f (ARelative 2, context, brk, env)) ++ [jumpOrGoto flow]
 		compileExpressionBool bool _ _ = []
-		compileExpressionFunctionCall name f = f name
+		compileExpressionFunctionCall name vars f (flow, context, brk, env) = cont (flow, context, brk, M.union functionEnvironment env)
+			where
+				functionEnvironment = M.fromList $ zipWith (,) decls vars
+				(decls, cont) = f name
+
 		compileExpressionAnd expr1 expr2 f flow = (expr1 f flow) ++ (expr2 f flow)
 		compileExpressionOr expr1 expr2 f (flow, context, brk, env) = (expr1 f (ARelative 1, context, brk, env)) ++ (expr2 f (flow, context, brk, env)) 
-		compileExpressionEquals ctype var val f (flow, context, brk, env) = if (env M.! var) == val then [jumpOrGoto flow] else []
+		compileExpressionEquals ctype var val f (flow, context, brk, env) = if (op ctype (env M.! var) val) then [] else [jumpOrGoto flow]
+			where
+				op CLT = (<)
+				op CGT = (>)
+				op CLE = (<=)
+				op CGE = (>=)
+				op CEQ = (==)
+				op CNE = (/=)
 
 		compileCommand (Sense direction condition) f (flow, context, brk, env) = [ASense direction condition flow]
 		compileCommand Move f (flow, context, brk, env) = [AMove flow]
