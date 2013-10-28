@@ -3,18 +3,18 @@
 
 function main() { 
 	
-	while(Sense Here Home) { moveCell() }
+	while(Sense Here Home) { turnMoveCell() }
 	explore()
 	}
 
 function explore() {
 
 	if(noMarkHere()) {Mark 0}
-	if(Sense Ahead Food && !Sense Ahead Home) { collect() } 
+	if(Sense Ahead Food && !Sense Ahead Home && Move) { collect() } 
 	else {	if(Move){	if(noMarkHere()) {Mark 1}
-						if(Sense Ahead Food && !Sense Ahead Home) {collect() }
+						if(Sense Ahead Food && !Sense Ahead Home && Move) {collect() }
 						else {	if(Move){	if(noMarkHere()) {Mark 2}
-											if(Sense Ahead Food && !Sense Ahead Home) {collect() }
+											if(Sense Ahead Food && !Sense Ahead Home && Move) {collect() }
 										}
 								else {exploreWithoutMarking()}
 							}
@@ -32,7 +32,6 @@ function exploreWithoutMarking() {
 
 function collect() {
 
-	Move
 	PickUp
 	turnaround()
 	moveCell()
@@ -78,6 +77,16 @@ function moveCell() {
             Turn Left
         }
     }
+}
+
+function turnMoveCell() {
+
+        if (Flip 2) {
+            while (!Move) {Turn Right}
+        } else {
+            while (!Move) {Turn Left}
+        }
+    
 }
 
 function turnaround() {
