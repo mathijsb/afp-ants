@@ -90,7 +90,7 @@ data Statement = If Expression [Statement] [Statement]
 			   | While Expression [Statement]
 			   | Break
 			   | Expr Expression
-			   | Times String Int [Statement]
+			   | Times String VarOrValue [Statement]
 	deriving (Show)
 
 data VarOrValue = Var String | Value Int
@@ -135,7 +135,7 @@ type AntsAlgebra program function statement expression command =
 		 (expression -> [statement] -> statement),
 		 statement,
 		 expression -> statement,
-		 String -> Int -> [statement] -> statement),
+		 String -> VarOrValue -> [statement] -> statement),
 
 		-- Expression
 		((command -> expression),

@@ -23,8 +23,15 @@
     	--	Move
     	--}
 
-    	sensemarker(0, 1)
-    	sensemarker(1, 0)
+    	--sensemarker(0, 1)
+    	--sensemarker(1, 0)
+
+    	sensenmarkers(4)
+    }
+    function sensenmarkers(i) {
+    	times (j, i) {
+    		Sense Here Marker(j)
+    	}
     }
 
     function sensemarker(i, j) {
