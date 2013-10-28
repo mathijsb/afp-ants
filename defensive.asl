@@ -11,7 +11,7 @@ function main()
     -- %TODO: we might need some NOPs here, if the Ants escape too slow.
 
     -- Perform general task for layer 4, except for the corners and their
-    -- clockwise neighbours, which have a special purpose.
+    -- clockwise neighbours, which have a special purpose. %TODO: no longer general tasks for 4.
     orientOuter()
     if (!Sense Ahead Friend)
     {
@@ -32,9 +32,13 @@ function main()
                 while(!Sense Ahead Marker(5)) {}
                 defendBackR()
             }
-            -- Not a corner, fulfill general task.
-            Turn Right
-            layerTask(4)
+            else
+            {
+                -- Gather collected food as a special case.
+                ensureMove()
+                ensureMove()
+                gatherCollectedFood()
+            }
         }
         else
         {
@@ -72,7 +76,10 @@ function main()
         }
         else
         {
-            times(i, 2) { ensureMove() }
+            ensureMove()
+            Mark 3
+            ensureMove()
+            Mark 4
             defendCenter()
         }
     }
@@ -89,7 +96,76 @@ function main()
     -- I might need some help escaping the fortress, though.
     -- %TODO: let this poor, poor Ant do something useful.
 
-    terminate()
+    gatherCollectedFood()
+}
+
+function gatherCollectedFood()
+{
+    times(i, 30) { Nop }
+    while(true)
+    {
+        pickupCollectedFood()
+        saveCollectedFood()
+    }
+}
+
+function pickupCollectedFood()
+{
+    while (!PickUp)
+    {
+        if (Sense Ahead Home && !Sense Ahead Friend && !Sense Ahead Marker(4))
+        {
+            if (!Move)
+            {
+                Turn Right
+            }
+        }
+        else
+        {
+            Turn Right
+        }
+        if (Flip 10)
+        {
+            Turn Right
+        }
+    }
+}
+
+function saveCollectedFood()
+{
+    while (!Sense Here Marker(4))
+    {
+        if (Sense Here Marker(3))
+        {
+            while(!Sense Ahead Marker(4))
+            {
+                Turn Left
+            }
+        }
+        if (Sense Ahead Home && !Sense Ahead Friend)
+        {
+            if (!Move)
+            {
+                Turn Right
+            }
+        }
+        else
+        {
+            if (Flip 2)
+            {
+                Turn Right
+            }
+            else
+            {
+                Turn Left
+            }
+        }
+        if (Flip 10)
+        {
+            Turn Right
+        }
+    }
+    Drop
 }
 
 -- %TODO: implement for all non-defensive Ants
@@ -167,16 +243,41 @@ function defendCenterKillEnemy()
 {
     while (!Sense Ahead Foe)
     {
-        if (Sense Ahead Food)
+        if (!Flip 6)
         {
-            if (Move)
+            if (Sense Ahead Food)
             {
-                PickUp
-                turnAround()
-                ensureMove()
-                Drop
-                turnAround()
+                if (Move)
+                {
+                    PickUp
+                    turnAround()
+                    ensureMove()
+                    Drop
+                    turnAround()
+                }
             }
+        }
+        else
+        {
+            turnAround()
+            if (Sense Ahead Food)
+            {
+                if (Move)
+                {
+                    PickUp
+                    turnAround()
+                    ensureMove()
+                    Drop
+                }
+                else
+                {
+                    turnAround()
+                }
+            }
+            else
+            {
+                turnAround()
+            }        
         }
     }
     while (Sense Ahead Foe)
@@ -188,7 +289,28 @@ function defendCenterKillEnemy()
 
 function defendCenterFeedEnemy()
 {
-    while (!Sense Ahead Foe) {}
+    while (!Sense Ahead Foe)
+    {
+        turnAround()
+        if (Sense Ahead Food)
+        {
+            if (Move)
+            {
+                PickUp
+                turnAround()
+                ensureMove()
+                Drop
+            }
+            else
+            {
+                turnAround()
+            }
+        }
+        else
+        {
+            turnAround()
+        }
+    }
     while (Sense Ahead Foe) {}
 }
 
