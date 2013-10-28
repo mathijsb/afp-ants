@@ -20,6 +20,10 @@ function explore() {
 						else {	if(Move){	if(noMarkHere()) {Mark 2}
 											if(Sense Ahead Food && !Sense Ahead Home && Move) {	if(noMarkHere()) {Mark 0}
 																								collect() }
+											else{ 	if(Move){}
+													else {break}
+													
+												}
 										}
 								else {break}
 							}
