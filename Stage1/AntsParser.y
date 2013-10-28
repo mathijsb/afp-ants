@@ -63,6 +63,7 @@ import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNum
   Turn              { TokenTurn	}
   Move              { TokenMove	}
   Flip              { TokenFlip	}
+  Nop               { TokenNop }
 
 %%
 
@@ -120,6 +121,7 @@ command : Sense sense_direction condition       { Sense $2 $3 }
               | PickUp                          { PickUp }
               | Drop                            { Drop }
               | Flip Int                        { Flip $2 }
+              | Nop                             { Nop }
 
 condition : Friend                           { Friend }
           | Foe                              { Foe }

@@ -73,6 +73,7 @@ tokens :-
   Turn             { \s -> TokenTurn }
   Move             { \s -> TokenMove }
   Flip             { \s -> TokenFlip }
+  Nop              { \s -> TokenNop }
 
   $digit+                   { \s -> TokenInteger (read s) }
   [$alpha $digit \+ \-]+			{ \s -> TokenIdentifier s }

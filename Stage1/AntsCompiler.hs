@@ -93,6 +93,7 @@ antsAlgebra = (compileProgram,
 		compileCommand Drop f _ = [ADrop]
 		compileCommand (Turn dir) f _ = [ATurn dir]
 		compileCommand (Flip num) f (flow, context, brk, env) = [AFlip num flow]
+		compileCommand Nop f _ = [ANop]
 
 		applyFlow sts dest context brk f env = concat . zipWith ($) (map ($f) sts) $ map (\i -> (dest, context ++ "_" ++ show i, brk, env)) [1..]
 
