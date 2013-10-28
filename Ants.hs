@@ -191,7 +191,7 @@ paintHandler dc ref =
    do drawWorld dc ref
       drawFood  dc ref
       drawAnts  dc ref
-      drawMarkers dc ref
+--      drawMarkers dc ref
 
 stopHandler ::ControlWidgets -> GUI ()
 stopHandler cws ref = 

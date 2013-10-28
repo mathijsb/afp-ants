@@ -1699,7 +1699,7 @@ Flip 1 1698 1698
 Sense Ahead 1699 1700 Friend
 Turn Left 1701
 Flip 1 1701 1701
-Sense Ahead 1828 1702 Friend
+Sense Ahead 1830 1702 Friend
 Turn Left 1703
 Sense LeftAhead 1704 1719 Friend
 Turn Right 1705
@@ -1723,7 +1723,7 @@ Move 1722 1721
 Mark 4 1723
 Move 1724 1723
 Sense Ahead 1754 1725 Foe
-Flip 6 1737 1726
+Flip 15 1737 1726
 Sense Ahead 1727 1724 Food
 Move 1728 1724
 PickUp 1729 1729
@@ -1755,79 +1755,79 @@ Turn Left 1724
 Sense Ahead 1755 1756 Foe
 Mark 5 1754
 Unmark 5 1757
-Sense Ahead 1775 1758 Foe
-Turn Left 1759
+Sense Ahead 1776 1758 Foe
+Flip 15 1759 1757
 Turn Left 1760
 Turn Left 1761
-Sense Ahead 1762 1772 Food
-Move 1763 1769
-PickUp 1764 1764
-Turn Left 1765
+Turn Left 1762
+Sense Ahead 1763 1773 Food
+Move 1764 1770
+PickUp 1765 1765
 Turn Left 1766
 Turn Left 1767
-Move 1768 1767
+Turn Left 1768
+Move 1769 1768
 Drop 1757
-Turn Left 1770
 Turn Left 1771
+Turn Left 1772
 Turn Left 1757
-Turn Left 1773
 Turn Left 1774
+Turn Left 1775
 Turn Left 1757
-Sense Ahead 1775 1776 Foe
-Sense Ahead 1794 1777 Foe
-Turn Left 1778
-Turn Left 1779
+Sense Ahead 1776 1777 Foe
+Sense Ahead 1796 1778 Foe
+Flip 15 1779 1777
 Turn Left 1780
-Sense Ahead 1781 1791 Food
-Move 1782 1788
-PickUp 1783 1783
-Turn Left 1784
-Turn Left 1785
+Turn Left 1781
+Turn Left 1782
+Sense Ahead 1783 1793 Food
+Move 1784 1790
+PickUp 1785 1785
 Turn Left 1786
-Move 1787 1786
-Drop 1776
-Turn Left 1789
-Turn Left 1790
-Turn Left 1776
+Turn Left 1787
+Turn Left 1788
+Move 1789 1788
+Drop 1777
+Turn Left 1791
 Turn Left 1792
-Turn Left 1793
-Turn Left 1776
-Sense Ahead 1794 1795 Foe
-Sense Ahead 1825 1796 Foe
-Flip 6 1808 1797
-Sense Ahead 1798 1795 Food
-Move 1799 1795
-PickUp 1800 1800
-Turn Left 1801
-Turn Left 1802
+Turn Left 1777
+Turn Left 1794
+Turn Left 1795
+Turn Left 1777
+Sense Ahead 1796 1797 Foe
+Sense Ahead 1827 1798 Foe
+Flip 15 1810 1799
+Sense Ahead 1800 1797 Food
+Move 1801 1797
+PickUp 1802 1802
 Turn Left 1803
-Move 1804 1803
-Drop 1805
-Turn Left 1806
-Turn Left 1807
-Turn Left 1795
+Turn Left 1804
+Turn Left 1805
+Move 1806 1805
+Drop 1807
+Turn Left 1808
 Turn Left 1809
-Turn Left 1810
+Turn Left 1797
 Turn Left 1811
-Sense Ahead 1812 1822 Food
-Move 1813 1819
-PickUp 1814 1814
-Turn Left 1815
-Turn Left 1816
+Turn Left 1812
+Turn Left 1813
+Sense Ahead 1814 1824 Food
+Move 1815 1821
+PickUp 1816 1816
 Turn Left 1817
-Move 1818 1817
-Drop 1795
-Turn Left 1820
-Turn Left 1821
-Turn Left 1795
+Turn Left 1818
+Turn Left 1819
+Move 1820 1819
+Drop 1797
+Turn Left 1822
 Turn Left 1823
-Turn Left 1824
-Turn Left 1795
-Sense Ahead 1826 1827 Foe
-Mark 5 1825
-Unmark 5 1795
-Flip 1 1829 1829
-Flip 1 1830 1830
+Turn Left 1797
+Turn Left 1825
+Turn Left 1826
+Turn Left 1797
+Sense Ahead 1828 1829 Foe
+Mark 5 1827
+Unmark 5 1797
 Flip 1 1831 1831
 Flip 1 1832 1832
 Flip 1 1833 1833
@@ -1837,47 +1837,47 @@ Flip 1 1836 1836
 Flip 1 1837 1837
 Flip 1 1838 1838
 Flip 1 1839 1839
-Sense Ahead 1843 1840 Friend
-Turn Left 1841
-Turn Left 1842
-Turn Left 1846
-Flip 1 1844 1844
-Flip 1 1845 1845
+Flip 1 1840 1840
+Flip 1 1841 1841
+Sense Ahead 1845 1842 Friend
+Turn Left 1843
+Turn Left 1844
+Turn Left 1848
 Flip 1 1846 1846
-Sense Ahead 1847 1848 Friend
-Turn Left 1849
-Flip 1 1849 1849
-Sense Ahead 1850 1851 Friend
-Turn Left 1852
-Flip 1 1852 1852
-Sense Ahead 1853 1854 Friend
-Turn Left 1855
-Flip 1 1855 1855
-Sense Ahead 1856 1857 Friend
-Turn Left 1858
-Flip 1 1858 1858
-Sense Ahead 1859 1860 Friend
-Turn Left 1861
-Flip 1 1861 1861
-Sense Ahead 1862 1863 Friend
-Turn Left 1864
-Flip 1 1864 1864
-Sense Ahead 1878 1865 Friend
-Move 1866 1865
-Move 1867 1866
+Flip 1 1847 1847
+Flip 1 1848 1848
+Sense Ahead 1849 1850 Friend
+Turn Left 1851
+Flip 1 1851 1851
+Sense Ahead 1852 1853 Friend
+Turn Left 1854
+Flip 1 1854 1854
+Sense Ahead 1855 1856 Friend
+Turn Left 1857
+Flip 1 1857 1857
+Sense Ahead 1858 1859 Friend
+Turn Left 1860
+Flip 1 1860 1860
+Sense Ahead 1861 1862 Friend
+Turn Left 1863
+Flip 1 1863 1863
+Sense Ahead 1864 1865 Friend
+Turn Left 1866
+Flip 1 1866 1866
+Sense Ahead 1880 1867 Friend
 Move 1868 1867
 Move 1869 1868
 Move 1870 1869
-Turn Left 1871
-Turn Left 1872
+Move 1871 1870
+Move 1872 1871
 Turn Left 1873
-Sense LeftAhead 1873 1874 Marker 5
-Move 1875 1874
-Turn Left 1876
-Turn Left 1877
-Turn Left 1869
-Flip 1 1879 1879
-Flip 1 1880 1880
+Turn Left 1874
+Turn Left 1875
+Sense LeftAhead 1875 1876 Marker 5
+Move 1877 1876
+Turn Left 1878
+Turn Left 1879
+Turn Left 1871
 Flip 1 1881 1881
 Flip 1 1882 1882
 Flip 1 1883 1883
@@ -1906,27 +1906,29 @@ Flip 1 1905 1905
 Flip 1 1906 1906
 Flip 1 1907 1907
 Flip 1 1908 1908
-Sense Here 1910 1909 Marker 4
-PickUp 1918 1910
-Sense Ahead 1911 1915 Home
-Sense Ahead 1915 1912 Friend
-Sense Ahead 1915 1913 Marker 4
-Move 1916 1914
-Turn Right 1916
-Turn Right 1916
-Flip 10 1917 1908
-Turn Right 1908
-Sense Here 1931 1919 Marker 4
-Sense Here 1920 1922 Marker 3
-Sense Ahead 1922 1921 Marker 4
-Turn Left 1920
-Sense Ahead 1923 1926 Home
-Sense Ahead 1926 1924 Friend
-Move 1929 1925
-Turn Right 1929
-Flip 2 1927 1928
-Turn Right 1929
-Turn Left 1929
-Flip 10 1930 1918
+Flip 1 1909 1909
+Flip 1 1910 1910
+Sense Here 1912 1911 Marker 4
+PickUp 1920 1912
+Sense Ahead 1913 1917 Home
+Sense Ahead 1917 1914 Friend
+Sense Ahead 1917 1915 Marker 4
+Move 1918 1916
 Turn Right 1918
-Drop 1908
+Turn Right 1918
+Flip 10 1919 1910
+Turn Right 1910
+Sense Here 1933 1921 Marker 4
+Sense Here 1922 1924 Marker 3
+Sense Ahead 1924 1923 Marker 4
+Turn Left 1922
+Sense Ahead 1925 1928 Home
+Sense Ahead 1928 1926 Friend
+Move 1931 1927
+Turn Right 1931
+Flip 2 1929 1930
+Turn Right 1931
+Turn Left 1931
+Flip 10 1932 1920
+Turn Right 1920
+Drop 1910
