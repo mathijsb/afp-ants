@@ -10,10 +10,8 @@ function main() {
     -- Iterate while navigating to the food.
     while (true) {
         if (Sense Here Home) {
-            times(i, 4) {
-                if (i <= 4) {
-                    Turn Left
-                }
+            times(i, 3) {
+                Turn Left
             }
         } else if (PickUp) {
             break

@@ -79,17 +79,18 @@ func  : function Ident '(' function_args_decls ')' '{' statements '}'    { Funct
 statements : {- empty -}                     { [] }
            | statements statement            { $2 : $1 }
 
-statement  : if_statement                                   { $1 [] }
-           | if_statement else if_statement                 { $1 ([$3 []]) }
-           | if_statement else '{' statements '}'           { $1 (reverse $4) }
-
+statement  : if_statement                                   { $1 }
            | while '(' expression ')' '{' statements '}'    { While $3 (reverse $6)}
-
            | break                                          { Break }
            | expression                                     { Expr $1 }
            | times '(' Ident ',' Int ')' '{' statements '}' { Times $3 $5 $8 }
 
-if_statement : if '(' expression ')' '{' statements '}'  { If $3 (reverse $6) }
+
+if_statement : if_statement_1                                   { $1 [] }
+             | if_statement_1 else if_statement                 { $1 ([$3]) }
+             | if_statement_1 else '{' statements '}'           { $1 (reverse $4) }
+
+if_statement_1 : if '(' expression ')' '{' statements '}'  { If $3 (reverse $6) }
 
 
 expression : expression1 '&&' expression      { And $1 $3 }

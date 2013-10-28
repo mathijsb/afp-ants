@@ -42,8 +42,10 @@ antsAlgebra = (compileProgram,
 					[] -> ifInstructions
 					otherwise -> expressionInstructions
 			 			++ ifInstructions
+			 			++ [AGoto (context ++ "_END")]
 			 			++ [ALabel1 (context ++ "_ELSE")]
 			 			++ (applyFlow sts3 (ARelative 1) (context ++ "_ELSE") brk f env) 
+			 			++ [ALabel1 (context ++ "_END")]
 			 	where
 			 		expressionInstructions = expr f (ALabel (context ++ "_ELSE"), context ++ "_IF", Nothing, env)
 			 		ifInstructions = (applyFlow sts2 (ARelative 1) (context ++ "_IF") brk f env) 

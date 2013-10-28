@@ -9,7 +9,15 @@
     	--	}
     	--}
 
-    	movetimes(3)
+    	if (Sense Here Home) {
+    		Move
+    	} else if (Sense Here Home) {
+    		Move
+    	} else {
+    		Move
+    	}
+
+    	-- movetimes(3)
     }
 
     function movetimes(i) {
