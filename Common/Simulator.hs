@@ -224,7 +224,7 @@ clearMarkerAt c m cell =
 ------------------------------------------------------------------
 -- 2.6 Phenomenology
 
-data Condition = Friend | Foe | FriendWithFood | FoeWithFood | Food | Rock | Marker MarkerNumber | FoeMarker | Home | FoeHome 
+data Condition = Friend | Foe | FriendWithFood | FoeWithFood | Food | Rock | Marker MarkerNumber | MarkerVar String | FoeMarker | Home | FoeHome 
    deriving Show
 
 cellMatches :: Cell -> Condition -> AntColor -> Bool

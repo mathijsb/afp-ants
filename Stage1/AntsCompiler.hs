@@ -85,7 +85,9 @@ antsAlgebra = (compileProgram,
 				op CEQ = (==)
 				op CNE = (/=)
 
-		compileCommand (Sense direction condition) f (flow, context, brk, env) = [ASense direction condition flow]
+		compileCommand (Sense direction condition) f (flow, context, brk, env) = case condition of
+			MarkerVar n -> [ASense direction (Marker $ env M.! n) flow]
+			otherwise -> [ASense direction condition flow]
 		compileCommand Move f (flow, context, brk, env) = [AMove flow]
 		compileCommand (Mark num) f _ = [AMark num]
 		compileCommand (Unmark num) f _ = [AUnmark num]

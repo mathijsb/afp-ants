@@ -130,6 +130,7 @@ condition : Friend                           { Friend }
           | Food                             { Food }
           | Rock                             { Rock }
           | Marker '(' Int ')'               { Marker $3 }
+          | Marker '(' Ident ')'             { MarkerVar $3 }
           | FoeMarker                        { FoeMarker }
           | Home                             { Home }
           | FoeHome                          { FoeHome }
