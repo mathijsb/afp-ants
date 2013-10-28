@@ -24,7 +24,7 @@ STAGE2_DEPS = $(patsubst %,Stage2/%,$(STAGE2))
 COMMON_DEPS = $(patsubst %,Common/%,$(COMMON))
 
 gui: $(COMMON_DEPS) Ants.hs
-	ghc --make Ants -o gui
+	ghc --make -O2 Ants -o gui
 
 ants: $(COMMON_DEPS) $(STAGE1_DEPS)
 	ghc --make -main-is Stage1.Ants Stage1.Ants -o ants
