@@ -4,7 +4,9 @@
 function main() { 
 	
 	while(Sense Here Home) { turnMoveCell() }
-	explore()
+	while(!Sense Here Home) {explore()}
+	while(!Sense Here Home) {exploreWithoutMarking()}
+	
 	}
 
 function explore() {
@@ -19,10 +21,10 @@ function explore() {
 											if(Sense Ahead Food && !Sense Ahead Home && Move) {	if(noMarkHere()) {Mark 0}
 																								collect() }
 										}
-								else {exploreWithoutMarking()}
+								else {break}
 							}
 						}
-			else {exploreWithoutMarking()}
+			else {break}
 			}
 				
 }
@@ -38,8 +40,10 @@ function collect() {
 	PickUp
 	turnaround()
 	while(!Sense Here Home){goHomeAndMark()}
+	while(!Sense Here Home){goHome()}
 	Drop
 	turnaround()
+	break
 	
 }	
 
@@ -53,7 +57,7 @@ if(Sense Here Marker(0)||Sense Here Marker(3)){
 								times(a,5){if(!Sense Ahead Marker(2)){Turn Left}}
 								if(Sense Ahead Marker(2)) { Mark 3
 																					moveCell()}
-								else{while(!Sense Here Home){goHome()}}
+								else{break}
 								}
 							}
 else {
@@ -63,7 +67,7 @@ else {
 							Turn Left
 							times(a,5){if(!Sense Ahead Marker(0)&& !Sense Ahead Marker(3)){Turn Left}}
 							if(Sense Ahead Marker(0)||Sense Ahead Marker(3)) {moveCell()}
-							else{while(!Sense Here Home){goHome()}}
+							else{break}
 							}
 							}
 else {
@@ -73,12 +77,12 @@ else {
 							Turn Left						
 							times(a,5){if(!Sense Ahead Marker(1)){Turn Left}}
 							if(Sense Ahead Marker(1)) {moveCell()}
-							else{while(!Sense Here Home){goHome()}}
+							else{break}
 							}
 							}
 	else {
 		moveCell()
-		while(!Sense Here Home){goHome()}}
+		break}
 	}
 	}
 
