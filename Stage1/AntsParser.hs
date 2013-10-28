@@ -387,7 +387,9 @@ action_85 _ = happyFail
 
 action_86 _ = happyReduce_22
 
-action_87 (34) = happyShift action_94
+action_87 (33) = happyShift action_71
+action_87 (34) = happyShift action_72
+action_87 (15) = happyGoto action_94
 action_87 _ = happyFail
 
 action_88 (29) = happyShift action_93
@@ -620,7 +622,7 @@ happyReduction_11 (_ `HappyStk`
 	(HappyAbsSyn7  happy_var_8) `HappyStk`
 	_ `HappyStk`
 	_ `HappyStk`
-	(HappyTerminal (TokenInteger happy_var_5)) `HappyStk`
+	(HappyAbsSyn15  happy_var_5) `HappyStk`
 	_ `HappyStk`
 	(HappyTerminal (TokenIdentifier happy_var_3)) `HappyStk`
 	_ `HappyStk`

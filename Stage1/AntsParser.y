@@ -84,7 +84,7 @@ statement  : if_statement                                   { $1 }
            | while '(' expression ')' '{' statements '}'    { While $3 (reverse $6)}
            | break                                          { Break }
            | expression                                     { Expr $1 }
-           | times '(' Ident ',' Int ')' '{' statements '}' { Times $3 $5 $8 }
+           | times '(' Ident ',' function_arg ')' '{' statements '}' { Times $3 $5 $8 }
 
 
 if_statement : if_statement_1                                   { $1 [] }

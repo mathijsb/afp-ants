@@ -62,9 +62,11 @@ antsAlgebra = (compileProgram,
 				Nothing -> error "Break without an enclosing while statement"
 
 		compileStatementExpr expr f = expr f
-		compileStatementTimes var times sts f (flow, context, brk, env) = concat . map compile $ [1 .. times]
+		compileStatementTimes var times sts f (flow, context, brk, env) = concat . map compile $ [1 .. (resolveVar times)]
 			where 
 				compile n = applyFlow sts flow (context ++ "_" ++ show n) brk f (M.insert var n env)
+				resolveVar (Var name) = env M.! name
+				resolveVar (Value val) = val
 
 		compileExpressionCommand = id
 		compileExpressionNot expr f (flow, context, brk, env) = (expr f (ALabel (context ++ "_NOTEND"), context, brk, env)) ++ [jumpOrGoto flow] ++ [ALabel1 (context ++ "_NOTEND")]
