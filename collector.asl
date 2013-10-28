@@ -43,7 +43,7 @@ function collect() {
 
 	PickUp
 	turnaround()
-	while(!Sense Here Home){goHomeAndMark()}
+	--while(!Sense Here Home){goHomeAndMark()}
 	while(!Sense Here Home){goHome()}
 	Drop
 	turnaround()
@@ -94,16 +94,8 @@ else {
 
 function goHome() {
 
-if(Sense Here Marker(0)||Sense Here Marker(3)){
-							if( Sense Ahead Marker(2)) {moveCell()}
-							else {
-								Turn Left
-								times(a,5){if(!Sense Ahead Marker(2)){Turn Left}}
-								moveCell()
-								}
-							}
-else {
-	if(Sense Here Marker(1)){  
+if(Sense Here Marker(0)||Sense Here Marker(3)){senseALRH(2)}
+else { if(Sense Here Marker(1)){  
 							if( Sense Ahead Marker(0)||Sense Ahead Marker(3)) {moveCell()}
 							else {
 								Turn Left
@@ -111,20 +103,73 @@ else {
 								moveCell()
 								}
 							}
-else {
-	if(Sense Here Marker(2)){ 
-							if( Sense Ahead Marker(1)) {moveCell()}
-							else {
-								Turn Left
-								times(a,5){if(!Sense Ahead Marker(1)){Turn Left}}
-								moveCell()
-								}
-							}
+	else { 
+		if(Sense Here Marker(2)){senseALR(1)}
+	
+		else {
+				moveCell()
+				while(noMarkHere()){moveCell()}
+			}
+	}
+}
+}
+
+
+
+function senseALR(i) {
+
+	if(Sense Ahead Marker(i)) {moveCell()}
 	else {
-		moveCell()
-		while(noMarkHere()){moveCell()}}
-	}
-	}
+		if(Sense LeftAhead Marker(i)){	Turn Left
+										moveCell()}
+		else{
+			if(Sense RightAhead Marker(i)){ Turn Right
+											moveCell()}
+			else{
+				turnaround()
+				if( Sense Ahead Marker(i)) {moveCell()}
+				else {
+					if(Sense LeftAhead Marker(i)){	Turn Left
+													moveCell()}
+					else {
+						if(Sense RightAhead Marker(i)){	Turn Right
+														moveCell()}
+						else{ 	turnaround()
+								moveCell()}
+						}
+					}
+				}
+			}
+		}
+
+}
+
+function senseALRH(i) {
+
+	if(Sense Ahead Marker(i)||Sense Ahead Home) {moveCell()}
+	else {
+		if(Sense LeftAhead Marker(i)||Sense Ahead Home){Turn Left
+														moveCell()}
+		else{
+			if(Sense RightAhead Marker(i)||Sense Ahead Home){	Turn Right
+																moveCell()}
+			else{
+				turnaround()
+				if( Sense Ahead Marker(i)||Sense Ahead Home) {moveCell()}
+				else {
+					if(Sense LeftAhead Marker(i)||Sense Ahead Home){Turn Left
+																	moveCell()}
+					else {
+						if(Sense RightAhead Marker(i)||Sense Ahead Home){	Turn Right
+																			moveCell()}
+						else{ 	turnaround()
+								moveCell()}
+						}
+					}
+				}
+			}
+		}
+
 }
 
 function followRoute(a,b,c) {
