@@ -127,7 +127,7 @@ condition : Friend                           { Friend }
           | FoeWithFood                      { FoeWithFood }
           | Food                             { Food }
           | Rock                             { Rock }
-          | Marker                           { Marker 0 }
+          | Marker '(' Int ')'               { Marker $3 }
           | FoeMarker                        { FoeMarker }
           | Home                             { Home }
           | FoeHome                          { FoeHome }

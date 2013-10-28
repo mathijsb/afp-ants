@@ -9,9 +9,9 @@
     	--	}
     	--}
 
-    	if (Sense Here Home) {
+    	if (Sense Here Marker(3)) {
     		Move
-    	} else if (Sense Here Home) {
+    	} else if (Sense Here Marker(2)) {
     		Move
     	} else {
     		Move
