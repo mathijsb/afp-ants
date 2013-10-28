@@ -109,9 +109,12 @@ function_args_decls : {- empty -}                   { [] }
                     | function_args_decls ',' Ident { $3 : $1 }
                     | Ident                         { [$1] }
 
-function_args : {- empty -}                   { [] }
-              | function_args ',' Int         { $3 : $1 }
-              | Int                           { [$1] }
+function_args : {- empty -}                      { [] }
+              | function_args ',' function_arg   { $3 : $1 }
+              | function_arg                     { [$1] }
+
+function_arg : Int                            { Value $1}
+             | Ident                          { Var $1 }                    
 
 command : Sense sense_direction condition       { Sense $2 $3 }
               | Move                            { Move }

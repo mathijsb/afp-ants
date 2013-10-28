@@ -10,6 +10,7 @@ module Stage1.AntsBase
 		Statement(..),
 		Command(..),
 		ComparisonType(..),
+		VarOrValue(..),
 		AntsAlgebra,
 		foldAntsAlgebra
 	) 
@@ -92,10 +93,13 @@ data Statement = If Expression [Statement] [Statement]
 			   | Times String Int [Statement]
 	deriving (Show)
 
+data VarOrValue = Var String | Value Int
+	deriving (Show)
+
 data Expression = ExpressionCommand Command
 			    | Not Expression
 			    | BoolExpression Bool
-			    | FunctionCall String [Int]
+			    | FunctionCall String [VarOrValue]
 			    | And Expression Expression
 			    | Or Expression Expression
 			    | Comparison ComparisonType String Int
@@ -137,7 +141,7 @@ type AntsAlgebra program function statement expression command =
 		((command -> expression),
 		 (expression -> expression),
 		 Bool -> expression,
-		 (String -> [Int] -> expression),
+		 (String -> [VarOrValue] -> expression),
 		 (expression -> expression -> expression),
 		 (expression -> expression -> expression),
 		 ComparisonType -> String -> Int -> expression),

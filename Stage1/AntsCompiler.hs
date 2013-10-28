@@ -71,7 +71,9 @@ antsAlgebra = (compileProgram,
 		compileExpressionBool bool _ _ = []
 		compileExpressionFunctionCall name vars f (flow, context, brk, env) = cont (flow, context, brk, M.union functionEnvironment env)
 			where
-				functionEnvironment = M.fromList $ zipWith (,) decls vars
+				functionEnvironment = M.fromList $ zipWith (,) decls (map resolveVar vars)
+				resolveVar (Var name) = env M.! name
+				resolveVar (Value val) = val
 				(decls, cont) = f name
 
 		compileExpressionAnd expr1 expr2 f (flow, context, brk, env) = (expr1 f (flow, context ++ "_1", brk, env)) ++ (expr2 f (flow, context ++ "_2", brk, env))
