@@ -126,6 +126,7 @@ function ensureMove()
 
 function defendFrontL()
 {
+    ensureMove()
     Turn Right
     while(true)
     {
@@ -140,6 +141,7 @@ function defendFrontL()
 
 function defendBackL()
 {
+    ensureMove()
     while(true)
     {
         ensureMove()
@@ -152,18 +154,47 @@ function defendBackL()
 
 function defendCenter()
 {
+    ensureMove()
+    defendCenterKillEnemy()
+    times(i, 2) { defendCenterFeedEnemy() }
     while(true)
     {
-        while (Sense Ahead Foe)
-        {
-            Mark 5
-        }
-        Unmark 5
+        defendCenterKillEnemy()
     }
+}
+
+function defendCenterKillEnemy()
+{
+    while (!Sense Ahead Foe)
+    {
+        if (Sense Ahead Food)
+        {
+            if (Move)
+            {
+                PickUp
+                turnAround()
+                ensureMove()
+                Drop
+                turnAround()
+            }
+        }
+    }
+    while (Sense Ahead Foe)
+    {
+        Mark 5
+    }
+    Unmark 5
+}
+
+function defendCenterFeedEnemy()
+{
+    while (!Sense Ahead Foe) {}
+    while (Sense Ahead Foe) {}
 }
 
 function defendFrontR()
 {
+    ensureMove()
     Turn Left
     while(true)
     {
@@ -178,6 +209,7 @@ function defendFrontR()
 
 function defendBackR()
 {
+    ensureMove()
     while(true)
     {
         ensureMove()
