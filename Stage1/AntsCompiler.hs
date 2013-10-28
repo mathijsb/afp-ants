@@ -67,15 +67,15 @@ antsAlgebra = (compileProgram,
 				compile n = applyFlow sts flow (context ++ "_" ++ show n) brk f (M.insert var n env)
 
 		compileExpressionCommand = id
-		compileExpressionNot expr f (flow, context, brk, env) = (expr f (ARelative 2, context, brk, env)) ++ [jumpOrGoto flow]
+		compileExpressionNot expr f (flow, context, brk, env) = (expr f (ALabel (context ++ "_NOTEND"), context, brk, env)) ++ [jumpOrGoto flow] ++ [ALabel1 (context ++ "_NOTEND")]
 		compileExpressionBool bool _ _ = []
 		compileExpressionFunctionCall name vars f (flow, context, brk, env) = cont (flow, context, brk, M.union functionEnvironment env)
 			where
 				functionEnvironment = M.fromList $ zipWith (,) decls vars
 				(decls, cont) = f name
 
-		compileExpressionAnd expr1 expr2 f flow = (expr1 f flow) ++ (expr2 f flow)
-		compileExpressionOr expr1 expr2 f (flow, context, brk, env) = (expr1 f (ARelative 1, context, brk, env)) ++ (expr2 f (flow, context, brk, env)) 
+		compileExpressionAnd expr1 expr2 f (flow, context, brk, env) = (expr1 f (flow, context ++ "_1", brk, env)) ++ (expr2 f (flow, context ++ "_2", brk, env))
+		compileExpressionOr expr1 expr2 f (flow, context, brk, env) = (expr1 f (ALabel (context ++ "_OR2"), context ++ "_1", brk, env)) ++ [AGoto (context ++ "_OREND"), ALabel1 (context ++ "_OR2")] ++ (expr2 f (flow, context ++ "_2", brk, env)) ++ [ALabel1 (context ++ "_OREND")]
 		compileExpressionEquals ctype var val f (flow, context, brk, env) = if (op ctype (env M.! var) val) then [] else [jumpOrGoto flow]
 			where
 				op CLT = (<)
