@@ -136,7 +136,7 @@ parseAssembler = Assembler
             
             -- <mark>
             readMark s = let i = readZ s
-                         in if i <= 5
+                         in if i <= 5 && i >= 0
                               then i
                               else throw s "invalid marker number"
             

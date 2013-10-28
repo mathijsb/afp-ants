@@ -71,7 +71,8 @@ data AntsToken =
 	TokenDrop				|
 	TokenTurn				|
 	TokenMove				|
-	TokenFlip				
+	TokenFlip				|
+	TokenNop 				
 
 	deriving (Eq,Show)
 
@@ -111,6 +112,7 @@ data Command = Sense SenseDir Condition
 			    | Drop
 			    | Turn LeftOrRight
 			    | Flip Int
+			    | Nop
 	deriving (Show)
 
 ------------------------------------------
