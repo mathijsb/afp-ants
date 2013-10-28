@@ -11,10 +11,10 @@ import Stage1.AntsBase
 import Stage2.Base
 import Debug.Trace
 
-type FunctionLookup = String -> ([String], ProgramFlow -> [AInstruction])
-type Environment = M.Map String Int
-type ProgramFlow = (ADest, String, Maybe String, Environment)
-type LabeledFunction = (String, ([String], ProgramFlow -> [AInstruction]))
+type FunctionLookup = FuncName -> ([VarName], ProgramFlow -> [AInstruction])
+type Environment = M.Map VarName Int
+type ProgramFlow = (ADest, Label, Maybe Label, Environment)
+type LabeledFunction = (FuncName, ([VarName], ProgramFlow -> [AInstruction]))
 
 antsAlgebra :: AntsAlgebra [AInstruction] 
 						   (FunctionLookup -> LabeledFunction) 

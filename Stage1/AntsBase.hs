@@ -12,6 +12,8 @@ module Stage1.AntsBase
 		ComparisonType(..),
 		VarOrValue(..),
 		AntsAlgebra,
+		FuncName,
+		VarName,
 		foldAntsAlgebra
 	) 
 	where
@@ -80,29 +82,32 @@ data AntsToken =
 ------------------------------------------
 -- Data structure for Ants language
 
+type VarName = String
+type FuncName = String
+
 data Program = Program [Function]
 	deriving (Show)
 
-data Function = Function Ident [Statement] [String]
+data Function = Function FuncName [Statement] [VarName]
 	deriving (Show)
 
 data Statement = If Expression [Statement] [Statement]
 			   | While Expression [Statement]
 			   | Break
 			   | Expr Expression
-			   | Times String VarOrValue [Statement]
+			   | Times VarName VarOrValue [Statement]
 	deriving (Show)
 
-data VarOrValue = Var String | Value Int
+data VarOrValue = Var VarName | Value Int
 	deriving (Show)
 
 data Expression = ExpressionCommand Command
 			    | Not Expression
 			    | BoolExpression Bool
-			    | FunctionCall String [VarOrValue]
+			    | FunctionCall FuncName [VarOrValue]
 			    | And Expression Expression
 			    | Or Expression Expression
-			    | Comparison ComparisonType String Int
+			    | Comparison ComparisonType VarName Int
 
 	deriving (Show)
 
@@ -128,23 +133,23 @@ type AntsAlgebra program function statement expression command =
 		([function] -> program),
 		
 		-- Function
-		(Ident -> [String] -> [statement] -> function),
+		(FuncName -> [VarName] -> [statement] -> function),
 
 		-- Statement
 		((expression -> [statement] -> [statement] -> statement),
 		 (expression -> [statement] -> statement),
 		 statement,
 		 expression -> statement,
-		 String -> VarOrValue -> [statement] -> statement),
+		 VarName -> VarOrValue -> [statement] -> statement),
 
 		-- Expression
 		((command -> expression),
 		 (expression -> expression),
 		 Bool -> expression,
-		 (String -> [VarOrValue] -> expression),
+		 (FuncName -> [VarOrValue] -> expression),
 		 (expression -> expression -> expression),
 		 (expression -> expression -> expression),
-		 ComparisonType -> String -> Int -> expression),
+		 ComparisonType -> VarName -> Int -> expression),
 
 		-- Command
 		(Command -> command)
