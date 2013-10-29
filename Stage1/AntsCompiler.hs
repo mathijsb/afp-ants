@@ -11,25 +11,70 @@ import Stage1.AntsBase
 import Stage2.Base
 import Debug.Trace
 
-type FunctionLookup = FuncName -> ([VarName], ProgramFlow -> [AInstruction])
+--type FunctionLookup = FuncName -> ([VarName], ProgramFlow -> [AInstruction])
+--type Environment = M.Map VarName Int
+--type ProgramFlow = (ADest, Label, Maybe Label, Environment)
+--type LabeledFunction = (FuncName, ([VarName], ProgramFlow -> [AInstruction]))
+
 type Environment = M.Map VarName Int
-type ProgramFlow = (ADest, Label, Maybe Label, Environment)
-type LabeledFunction = (FuncName, ([VarName], ProgramFlow -> [AInstruction]))
+
+data CompilerState = CompilerState {
+	functions :: [LabeledFunction],
+	environment :: Environment,
+	failDestination :: ADest,
+	breakDestination :: Maybe Label,
+	context :: String
+
+}
+
+type Generator = CompilerState -> [AInstruction]
+type LabeledFunction = (FuncName, ([VarName], Generator))
 
 antsAlgebra :: AntsAlgebra [AInstruction] 
-						   (FunctionLookup -> LabeledFunction) 
-						   (FunctionLookup -> ProgramFlow -> [AInstruction]) 
-						   (FunctionLookup -> ProgramFlow -> [AInstruction])
-						   (FunctionLookup -> ProgramFlow -> [AInstruction])
+						   LabeledFunction
+						   Generator 
+						   Generator
+						   Generator
 
 antsAlgebra = (compileProgram,
 			   compileFunction,
-			   (compileStatementIf, compileStatementWhile, compileStatementBreak, compileStatementExpr, compileStatementTimes),
-			   (compileExpressionCommand, compileExpressionNot, compileExpressionBool, compileExpressionFunctionCall, compileExpressionAnd, compileExpressionOr, compileExpressionEquals),
-			   compileCommand)
+			   (compileStatementIf, compileStatementWhile, compileStatementBreak, 
+			   	compileStatementExpr, compileStatementTimes),
+			   (compileExpressionCommand, compileExpressionNot, compileExpressionBool, 
+			   	compileExpressionFunctionCall, compileExpressionAnd, compileExpressionOr, 
+			   	compileExpressionEquals),
+			   compileExpressionCommand)
 
 	where
 
+		compileProgram funcs = 
+			let (_, gen) = resolveFunction funcs "main"
+			in gen $ CompilerState funcs M.empty (ARelative 1) Nothing ""
+
+		compileFunction ident decls sts = (ident, (decls, mergeGenerators sts))
+
+		compileStatementIf expr sts1 sts2 st = undefined
+		compileStatementWhile = undefined
+		compileStatementBreak = undefined 
+		compileStatementExpr = undefined 
+		compileStatementTimes = undefined
+
+		compileExpressionCommand = undefined
+		compileExpressionNot = undefined
+		compileExpressionBool = undefined
+		compileExpressionFunctionCall = undefined 
+		compileExpressionAnd = undefined 
+		compileExpressionOr = undefined 
+		compileExpressionEquals = undefined
+
+		resolveFunction funcs name = case lookup name funcs of
+			Just f -> f
+			Nothing -> error $ "function '" ++ name ++ "' is invoked but not defined."
+
+		mergeGenerators gens st = concat . map ($st) $ gens
+
+			   
+{-
 		compileProgram instrs = [ALabel1 "START"] ++ (((snd . lookupFunction) "main") (ARelative 1, "", Nothing, M.empty)) ++ [AGoto "START"]
 			where lookupFunction name = case lookup name . map ($lookupFunction) $ instrs of
 				 	Just e -> e
@@ -103,6 +148,7 @@ antsAlgebra = (compileProgram,
 
 		applyFlow sts dest context brk f env = concat . zipWith ($) (map ($f) sts) $ map (\i -> (dest, context ++ "_" ++ show i, brk, env)) [1..]
 
+-}
 
 compileAnts :: Program -> [AInstruction]
 compileAnts = foldAntsAlgebra antsAlgebra
