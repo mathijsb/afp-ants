@@ -9,6 +9,7 @@ import Data.Maybe
 import Data.List
 import Control.Monad.State
 import Control.Monad
+import Control.Applicative
 import Stage1.AntsBase
 import Stage2.Base
 import Debug.Trace
@@ -17,7 +18,7 @@ type Environment = M.Map VarName Int
 
 data CompilerState = CompilerState {
 	functions :: [LabeledFunction],
-	environment :: Environment,
+	env :: Environment,
 	failDestination :: ADest,
 	breakDestination :: Maybe Label,
 	context :: String
@@ -76,20 +77,44 @@ antsAlgebra = (compileProgram,
 		compileStatementExpr = id 
 		compileStatementTimes var times sts st = liftM concat . sequence . map compile $ range
 			where
-				range = [1 .. (resolveVar times st)]
-				compile n = mergeGenerators sts st {environment = M.insert var n (environment st)}
+				range = [1 .. (resolveVar st times)]
+				compile n = mergeGenerators sts st {env = M.insert var n (env st)}
 
+		compileExpressionNot expr st = do
+			labelEnd <- uniqueLabel "NOT"
+			liftM (++ [ALabel1 labelEnd]) $ expr st {failDestination = ALabel labelEnd}
+
+		compileExpressionBool _ st = return []
+
+{-
+		compileExpressionAnd expr1 expr2 f (flow, context, brk, env) = (expr1 f (flow, context ++ "_1", brk, env)) ++ (expr2 f (flow, context ++ "_2", brk, env))
+		compileExpressionOr expr1 expr2 f (flow, context, brk, env) = (expr1 f (ALabel (context ++ "_OR2"), context ++ "_1", brk, env)) ++ [AGoto (context ++ "_OREND"), ALabel1 (context ++ "_OR2")] ++ (expr2 f (flow, context ++ "_2", brk, env)) ++ [ALabel1 (context ++ "_OREND")]
+		compileExpressionEquals ctype var val f (flow, context, brk, env) = if (op ctype (env M.! var) val) then [] else [jumpOrGoto flow]
+			where
+				op CLT = (<)
+				op CGT = (>)
+				op CLE = (<=)
+				op CGE = (>=)
+				op CEQ = (==)
+				op CNE = (/=)
+-}
+
+		compileExpressionFunctionCall name vars st = gen st {env = M.union functionEnvironment (env st)}
+			where
+				functionEnvironment = M.fromList $ zipWith (,) decls (map (resolveVar st) vars)
+				(decls, gen) = resolveFunction (functions st) name
+
+		compileExpressionAnd expr1 expr2 st = liftM2 (++) (expr1 st) (expr2 st)
+		compileExpressionOr expr1 expr2 st = do
+			(labelOr2, labelOrEnd) <- uniqueLabelTup ("OR2", "END")
+			liftM2 (\e1 e2 -> e1 ++ e2 ) (expr1 st {failDestination = (ALabel labelOr2)}) (expr2 st) 
+
+		compileExpressionEquals ctype var val st = undefined
 		compileExpressionCommand = id 
-		compileExpressionNot = undefined
-		compileExpressionBool = undefined
-		compileExpressionFunctionCall = undefined 
-		compileExpressionAnd = undefined 
-		compileExpressionOr = undefined 
-		compileExpressionEquals = undefined
 
 		compileCommand Move st = return $ [AMove . failDestination $ st]
 		compileCommand (Sense direction condition) st = case condition of
-			MarkerVar n -> return [ASense direction (Marker ((environment st) M.! n)) (failDestination st)]
+			MarkerVar n -> return [ASense direction (Marker ((env st) M.! n)) (failDestination st)]
 			otherwise -> return [ASense direction condition (failDestination st)]
 
 		compileCommand (Mark num) _ = return [AMark num]
@@ -104,8 +129,8 @@ antsAlgebra = (compileProgram,
 			Just f -> f
 			Nothing -> error $ "function '" ++ name ++ "' is invoked but not defined."
 
-		resolveVar (Var name) st = (environment st) M.! name
-		resolveVar (Value val) st = val
+		resolveVar st (Var name) = (env st) M.! name
+		resolveVar st (Value val) = val
 
 		mergeGenerators gens st = liftM concat . sequence . map ($st) $ gens
 
