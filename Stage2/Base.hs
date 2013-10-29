@@ -75,22 +75,22 @@ Instructions and all labels are considered case-insensitive.
 -}
 
 data AInstruction 
-   = ASense SenseDir Condition ADest
-   | AMark MarkerNumber
-   | AUnmark MarkerNumber
-   | APickUp ADest
+   = ASense !SenseDir !Condition !ADest
+   | AMark !MarkerNumber
+   | AUnmark !MarkerNumber
+   | APickUp !ADest
    | ADrop
-   | ATurn LeftOrRight
-   | AMove ADest
-   | AFlip Int ADest
-   | AGoto Label
-   | AJump Int
+   | ATurn !LeftOrRight
+   | AMove !ADest
+   | AFlip !Int !ADest
+   | AGoto !Label
+   | AJump !Int
    | ANop
    | ALabel1 String -- Used only in Stage1, probably needs to be refactored...
  deriving Show
 
 type Label = String
-data ADest = ALabel Label | ARelative Int
+data ADest = ALabel !Label | ARelative !Int
   deriving (Show, Eq)
 newtype Assembler = Assembler { aInstrs :: [([Label], AInstruction)] }
 

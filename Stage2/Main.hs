@@ -14,6 +14,8 @@ import Stage2.Assembler (assemble, assembleWithInfo, validate)
 import Stage2.Parse (parseAssembler)
 import Stage2.PrettyPrint (instructionToString2)
 
+import Control.DeepSeq
+
 -- | Assembler for Ambiants main program.
 main :: IO ()
 main = do
@@ -72,7 +74,7 @@ assembleFile ifile ofile = do
     contents <- hGetContents inputHandle
     outputHandle <- openFile ofile WriteMode
     code <- failOnError . validate . parseAssembler $ contents
-    mapM_ (putStrLn . show) $ assembleWithInfo code
+    -- mapM_ (putStrLn . show) $ assembleWithInfo code
     mapM_ (hPutStrLn outputHandle . instructionToString2) $ assemble code
     hClose inputHandle
     hClose outputHandle

@@ -11,11 +11,9 @@ import Stage2.Base (AInstruction(..), ADest(..), Assembler(..))
 import Common.Simulator (LeftOrRight(..), Instruction(..), Condition(..))
 
 assemblerToString :: Assembler -> String
-assemblerToString = ats . aInstrs
-  where ats [] = []
-        ats ((ll,i):as) =
+assemblerToString = concatMap ats . aInstrs
+  where ats (ll,i) =
           (unlines $ map (++ ":") ll ++ ["    " ++ instructionToString i])
-                                     ++ ats as
 
 instructionToString :: AInstruction -> String
 instructionToString i = map toUpper . unwords $ case i of

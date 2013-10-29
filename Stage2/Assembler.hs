@@ -12,7 +12,12 @@ import qualified Data.Map as M
 import Data.Set (Set)
 import qualified Data.Set as S
 import Data.Array (Array)
-import qualified Data.Array as A
+--import qualified Data.Array as A
+import qualified Data.Array.Base as A
+import qualified Data.IntMap as IM
+import qualified Data.IntMap.Strict as IMS
+import Data.IntSet (IntSet)
+import qualified Data.IntSet as IS
 import Data.Maybe
 import Control.Monad.Error
 import Control.Monad.Identity
@@ -27,13 +32,14 @@ type Info = String
 type InputInstr = Int
 type OutputInstr = Int
 type Labels = [Label]
-type AnnotatedInstructions = [(Instruction, Info)]
 
 type Validator = Assembler -> Either String ()
 data ValidAssembler = Valid { assembler :: Assembler }
 
+type GotoMap = IMS.IntMap Int
+
 assemble :: ValidAssembler -> [Instruction]
-assemble = map fst . assembleWithInfo
+assemble = snd . assembleWithInfo
 
 aLabels :: Assembler -> Map Label InputInstr
 aLabels = M.fromList . concatMap extractLabels . zip [1..] . map fst . aInstrs
@@ -45,8 +51,8 @@ aLines as = let ass = aInstrs as
 
 -- | Maps goto-like instructions in the assembler language to their /final/ 
 -- destinations (after traversing subsequent gotos) by instruction numbers.
-aGotoMap :: Assembler -> Map InputInstr InputInstr
-aGotoMap as = simplify . M.fromList . mapMaybe edge $ A.assocs lines
+aGotoMap :: Assembler -> GotoMap
+aGotoMap as = simplify . IMS.fromList . mapMaybe edge $ A.assocs lines
   where labels = aLabels as
         lines  = aLines as
         edge :: (InputInstr, AInstruction) -> Maybe (InputInstr, InputInstr)
@@ -56,12 +62,12 @@ aGotoMap as = simplify . M.fromList . mapMaybe edge $ A.assocs lines
                                      Just d -> Just (n, d)
                                      _      -> Nothing
                         _       -> Nothing
-        simplify m = M.mapWithKey (\x -> simplify' (S.fromList [x]) x) m
+        simplify m = IMS.mapWithKey (\x -> simplify' (IS.fromList [x]) x) m
           where simplify' v from to =
-                  if S.member to v
+                  if IS.member to v
                     then to
-                    else case M.lookup to m of
-                           Just n  -> simplify' (S.insert to v) from n
+                    else case IMS.lookup to m of
+                           Just n  -> simplify' (IS.insert to v) from n
                            Nothing -> to
 
 -- | Assembler-specific 'throwError' function piggy-backed on 'validationError',
@@ -114,7 +120,7 @@ validateDestinations as =
 
 -- | Checks if the GOTO \/ JUMP sequences do not contain non-productive cycles.
 validateCycleFree :: Validator
-validateCycleFree as = do mapM_ notCyclic . M.assocs . aGotoMap $ as
+validateCycleFree as = do mapM_ notCyclic . IMS.assocs . aGotoMap $ as
                           return ()
   where notCyclic (from, to) = unless (from /= to) $
           validationInstrError "cycle detected" as to
@@ -137,17 +143,15 @@ validators = [validateUniqueLabels,
               validateDestinations]
 
 validate :: Assembler -> Either String ValidAssembler
-validate as = do let labels = aLabels as
-                 let lines = aLines as
-                 mapM_ ($ as) validators
+validate as = do mapM_ ($ as) validators
                  return $ Valid as
 
-assembleWithInfo :: ValidAssembler -> AnnotatedInstructions
-assembleWithInfo vas = snd $ assemble' empty 0 ins
+type InOutMap = IM.IntMap Int
+
+assembleWithInfo :: ValidAssembler -> (InOutMap, [Instruction])
+assembleWithInfo vas = assemble' IM.empty 0 ins
   where as = assembler vas
-        empty = A.array (1, numI) . zip [1..] . replicate numI $ (-1)
         numI = length $ aInstrs as
-        insert k v a = a A.// [(k, v)]
         -- Input instructions with their labels and input instruction numbers.
         ins :: [(InputInstr, Labels, AInstruction)]
         ins = map (\(n, (ls, i)) -> (n, ls, i)) . zip [1..] . aInstrs $ as
@@ -157,9 +161,9 @@ assembleWithInfo vas = snd $ assemble' empty 0 ins
         
         -- Recursively yield assembled instructions and update the input/output
         -- mapping.
-        assemble' :: Array InputInstr OutputInstr -> OutputInstr
+        assemble' :: InOutMap -> OutputInstr
                   -> [(InputInstr, Labels, AInstruction)]
-                  -> (Array InputInstr OutputInstr, AnnotatedInstructions)
+                  -> (InOutMap, [Instruction])
         assemble' m _ [] = (m, [])
         assemble' m x ((n, ls, i):as) = case i of
             ASense dir cond dest -> yield   $ Sense dir next (pos dest) cond
@@ -174,13 +178,12 @@ assembleWithInfo vas = snd $ assemble' empty 0 ins
             AGoto l              -> recurse $ ALabel l
             AJump z              -> recurse $ ARelative z
             
-          where yield x = (m', (x, comm) : is)
+          where yield x = (m', x : is)
                 recurse d = 
-                  let (m'', is') = assemble' (insert n (m'' A.! ref d) m) x as
+                  let (m'', is') = assemble' (IM.insert n (m'' IM.! ref d) m) x as
                   in (m'', is')
-                (m', is) = assemble' (insert n x m) (x+1) as
+                (m', is) = assemble' (IM.insert n x m) (x+1) as
                 ref (ALabel l)    = lmap M.! l
                 ref (ARelative r) = n + r
-                pos x = m' A.! ref x
+                pos x = m' IM.! ref x
                 next = pos (ARelative 1)
-                comm = show n ++ ". " ++ instructionToString i

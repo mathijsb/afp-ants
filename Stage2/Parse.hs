@@ -5,6 +5,7 @@ module Stage2.Parse (
 
 import Data.Char (toUpper, isDigit)
 import Data.Monoid (mempty)
+import Data.Foldable (foldr')
 
 import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNumber)
 
@@ -12,17 +13,17 @@ import Stage2.Base
 
 parseAssembler :: String -> Assembler
 parseAssembler = Assembler
-               . parse []
+               . foldr' parse []
                . zip [1..]               -- Add line numbers for reference
                . map (takeWhile (/=';')) -- Remove comments
                . lines                   -- Newlines separate instructions
                . map toUpper             -- Case insensitivity
-  where parse _ [] = []
-        parse ls ((n, instr) : instrs) =
+  where parse :: (Int, String) -> [([String], AInstruction)] -> [([String], AInstruction)]
+        parse (n, instr) instrs = 
           case words instr of
              -- SENSE <sense> MARKER <mark> <alt>
              ("SENSE" : sense : "MARKER" : m : alt) -> 
-               yield $ ASense (readSense sense) (Marker (readMark m)) (readAlt alt)
+               yield $ ASense (readSense sense) (Marker $! readMark m) (readAlt alt)
 
              -- SENSE <sense> <cond> <alt>
              ("SENSE" : sense : cond : alt) -> 
@@ -72,19 +73,20 @@ parseAssembler = Assembler
              [label] ->
                case reverse label of
                  -- A valid label: attack the label to the next instruction.
-                 (':' : rlab@(_:_)) -> parse (reverse rlab : ls) instrs
+                 (':' : rlab@(_:_)) -> put $ reverse rlab
                  (':' : _)          -> throw label "label expected"
                  _                  -> throw label "label expected, missing `:'"
              -- Empty lines (or just comments) are ignored.
              [] ->
-               parse ls instrs
+               instrs
              -- Anything else is invalid.
              _ ->
                throw "" "invalid instruction" 
           where
             -- Found instruction, append and continue parsing.
-            yield i = (reverse ls, i) : parse [] instrs
-            
+            yield i = i `seq` (([], i) : instrs)
+            put l = l `seq` case instrs of
+                              (ll, ii):is -> ((l : ll, ii) : is)
             -- Throw an error with a more or less helpful error message.
             throw near msg =
               let near' = if null near then instr else near
