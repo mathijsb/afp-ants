@@ -373,7 +373,7 @@ removeChild p@(GraphBlock i os cs ls) c = do
   validate $ GraphBlock i os cs' ls'
 removeChild _ _ = fail "can only remove children from GraphBlocks"
 
--- TODO: alternatively, we might want to return the AnyLink as well
+-- TODO: alternatively, we might want to return the AnyLink as well?
 -- | Adds an 'InternalLine' between two children of the given block, failing
 -- if the resulting block is invalid or the children are not in scope.
 addInternalLine :: Monad m => Block -> Connector Out -> Block -> m Block

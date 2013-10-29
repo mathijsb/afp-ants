@@ -4,11 +4,13 @@ function main()
     dispatchLayer(6)
     
     -- %TODO: we might need some NOPs here, if the Ants escape too slow.
+    times(i, 3) { Nop }
     
     -- Perform general task for layer 5.
     dispatchLayer(5)
     
     -- %TODO: we might need some NOPs here, if the Ants escape too slow.
+    times(i, 3) { Nop }
 
     -- Perform general task for layer 4, except for the corners and their
     -- clockwise neighbours, which have a special purpose. %TODO: no longer general tasks for 4.
@@ -111,7 +113,7 @@ function gatherCollectedFood()
 
 function pickupCollectedFood()
 {
-    while (!PickUp)
+    while (Sense Here Marker(4) || !PickUp)
     {
         if (Sense Ahead Home && !Sense Ahead Friend && !Sense Ahead Marker(4))
         {
@@ -176,7 +178,10 @@ function saveCollectedFood()
 --
 function layerTask(n)
 {
-    runAway()
+    while(true)
+    {
+        mainExplore()
+    }
 }
 
 --
@@ -243,7 +248,7 @@ function defendCenterKillEnemy()
 {
     while (!Sense Ahead Foe)
     {
-        if (!Flip 6)
+        if (!Flip 15)
         {
             if (Sense Ahead Food)
             {
@@ -291,24 +296,27 @@ function defendCenterFeedEnemy()
 {
     while (!Sense Ahead Foe)
     {
-        turnAround()
-        if (Sense Ahead Food)
+        if (Flip 15)
         {
-            if (Move)
+            turnAround()
+            if (Sense Ahead Food)
             {
-                PickUp
-                turnAround()
-                ensureMove()
-                Drop
+                if (Move)
+                {
+                    PickUp
+                    turnAround()
+                    ensureMove()
+                    Drop
+                }
+                else
+                {
+                    turnAround()
+                }
             }
             else
             {
                 turnAround()
             }
-        }
-        else
-        {
-            turnAround()
         }
     }
     while (Sense Ahead Foe) {}
@@ -383,27 +391,132 @@ function orientOuter() {
     }    
 }
 
--- %TODO: eventually replace with something more meaningful.
---
--- Walks straight ahead, indefinitely.
---
-function runAway()
-{
-    while(true)
-    {
-        Move
+--Collector ant
+--the goal of this ant is to gather food
+
+function mainExplore() { 
+	
+	while(Sense Here Home) { turnMoveCell() }
+	while(!Sense Here Home) {explore()}
+	while(!Sense Here Home) {exploreWithoutMarking()}
+	
+	}
+
+function explore() {
+
+	if(noMarkHere()) {Mark 0}
+	if(Sense Ahead Food && !Sense Ahead Home && Move) { if(noMarkHere()) {Mark 1}
+														collect() } 
+	else {	if(Move){	if(noMarkHere()) {Mark 1}
+						if(Sense Ahead Food && !Sense Ahead Home && Move) { if(noMarkHere()) {Mark 2}
+																			collect() }
+						else {	if(Move){	if(noMarkHere()) {Mark 2}
+											if(Sense Ahead Food && !Sense Ahead Home && Move) {	if(noMarkHere()) {Mark 0}
+																								collect() }
+											else{ 	if(Move){}
+													else {break}
+													
+												}
+										}
+								else {break}
+							}
+						}
+			else {break}
+			}
+				
+}
+
+function exploreWithoutMarking() {
+	
+	while(!Sense Here Food && !Sense Here Home){moveCell()}
+	if(Sense Here Food){collect()}
+}
+
+function collect() {
+
+	PickUp
+	turnaround()
+	while(!Sense Here Home){goHome()}
+	Drop
+	turnaround()
+	break
+	
+}	
+
+function goHome() {
+
+if(Sense Here Marker(0)){senseALRH(2)}
+else { if(Sense Here Marker(1)){ senseALRH(0)
+							}
+	else { 
+		if(Sense Here Marker(2)){senseALRH(1)}
+	
+		else {
+				moveCell()
+				while(noMarkHere()){moveCell()}
+			}
+	}
+}
+}
+
+function senseALRH(i) {
+
+	if(Sense Ahead Marker(i)||Sense Ahead Home) {moveCell()}
+	else {
+		if(Sense LeftAhead Marker(i)||Sense Ahead Home){Turn Left
+														moveCell()}
+		else{
+			if(Sense RightAhead Marker(i)||Sense Ahead Home){	Turn Right
+																moveCell()}
+			else{
+				turnaround()
+				if( Sense Ahead Marker(i)||Sense Ahead Home) {moveCell()}
+				else {
+					if(Sense LeftAhead Marker(i)||Sense Ahead Home){Turn Left
+																	moveCell()}
+					else {
+						if(Sense RightAhead Marker(i)||Sense Ahead Home){	Turn Right
+																			moveCell()}
+						else{ 	turnaround()
+								moveCell()}
+						}
+					}
+				}
+			}
+		}
+
+}
+
+
+function noMarkHere() {
+	!Sense Here Marker(0)&& !Sense Here Marker(1)&& !Sense Here Marker(2)
+}
+
+function moveCell() {
+
+    -- When a move is not possible randomly turn left or right
+    -- until a move is possible
+    while (!Move) {
+        if (Flip 2) {
+            Turn Right
+        } else {
+            Turn Left
+        }
     }
 }
 
--- %TODO: should not be needed in final Ant implementation.
---
--- An infinite loop of NOPs: flip the coin, ignore the answer.
---
-function terminate()
-{
-    while(true)
-    {
-        Nop
-    }
+function turnMoveCell() {
+
+        if (Flip 2) {
+            while (!Move) {Turn Right}
+        } else {
+            while (!Move) {Turn Left}
+        }
+    
 }
 
+function turnaround() {
+	Turn Left
+	Turn Left
+	Turn Left
+}

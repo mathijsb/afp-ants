@@ -191,6 +191,7 @@ paintHandler dc ref =
    do drawWorld dc ref
       drawFood  dc ref
       drawAnts  dc ref
+--      drawMarkers dc ref
 
 stopHandler ::ControlWidgets -> GUI ()
 stopHandler cws ref = 
@@ -316,6 +317,33 @@ drawFood dc ref =
 foodRadius :: Float -> Int -> Int
 foodRadius scale = 
    round . (/5) . (*scale) . sqrt . min 100 . fromIntegral
+
+drawMarkers :: DC a -> GUI ()
+drawMarkers dc ref =
+   do scale <- readFromIORef ref scaling
+      game  <- readFromIORef ref gameState
+      let d (pos, cell) = 
+                    do middle <- useCache (cellCentre pos) ref
+                       mapM_ (\x -> drawMarker scale middle dc x ref) (showMarkers $ markersBlack cell)
+      getAssocs (world game) >>= mapM_ d
+
+drawMarker :: Float -> Point -> DC a -> Char -> GUI ()
+drawMarker s p dc c ref =
+  let (start, end, col) = case c of
+                            '0' -> (30, 90, color0)
+                            '1' -> (-30, 30, color1)
+                            '2' -> (270, 330, color2)
+                            '3' -> (210, 270, color3)
+                            '4' -> (150, 210, color4)
+                            '5' -> (90, 150, color5)
+  in do arc dc p (round (s/2.5)) start end [color := col, brushColor := col, brushKind := BrushSolid]
+        circle dc p (round (s/2.5)) [color := black, brushKind := BrushTransparent]
+  where color0 = rgb 255 0 0
+        color1 = rgb 255 255 0
+        color2 = rgb 0 255 0
+        color3 = rgb 0 255 255
+        color4 = rgb 0 0 255
+        color5 = rgb 255 0 255
      
 drawAnts :: DC a -> GUI ()
 drawAnts dc ref =
