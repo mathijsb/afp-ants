@@ -1,6 +1,13 @@
 module Stage2.Test (
     Testcase,
-    testcases
+    testcases,
+    validProgram,
+    testLoop1,
+    testLoop2,
+    testLoop3,
+    testLoop4,
+    testLoop5,
+    testUniqueLabels
 ) where
 
 import Stage2.Base (Assembler(..), AInstruction(..), ADest(..))

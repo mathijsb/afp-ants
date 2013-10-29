@@ -10,7 +10,7 @@ import System.FilePath.Posix (addExtension, splitExtension)
 import System.Exit (exitFailure)
 import Data.List (intersperse)
 
-import Stage2.Assembler (assemble, assembleWithInfo)
+import Stage2.Assembler (assemble, assembleWithInfo, validate)
 import Stage2.Parse (parseAssembler)
 import Stage2.PrettyPrint (instructionToString2)
 
@@ -61,14 +61,19 @@ replaceOrAddExtension match repl file =
        then addExtension base repl
        else addExtension file repl
 
+failOnError :: Monad m => Either String a -> m a
+failOnError (Left e) = fail e
+failOnError (Right r) = return r
+
 -- | Assembles the input file, placing the contents in the output file.
 assembleFile :: FilePath -> FilePath -> IO ()
 assembleFile ifile ofile = do
     inputHandle <- openFile ifile ReadMode
     contents <- hGetContents inputHandle
     outputHandle <- openFile ofile WriteMode
-    mapM_ (putStrLn . show) $ assembleWithInfo $ parseAssembler $ contents
-    mapM_ (hPutStrLn outputHandle . instructionToString2) $ assemble $ parseAssembler $ contents
+    code <- failOnError . validate . parseAssembler $ contents
+    mapM_ (putStrLn . show) $ assembleWithInfo code
+    mapM_ (hPutStrLn outputHandle . instructionToString2) $ assemble code
     hClose inputHandle
     hClose outputHandle
 
