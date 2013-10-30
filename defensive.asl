@@ -243,7 +243,7 @@ function defendCenterKillEnemy()
 {
     while (!Sense Ahead Foe)
     {
-        if (!Flip 6)
+        if (!Flip 15)
         {
             if (Sense Ahead Food)
             {
@@ -291,24 +291,27 @@ function defendCenterFeedEnemy()
 {
     while (!Sense Ahead Foe)
     {
-        turnAround()
-        if (Sense Ahead Food)
+        if (Flip 15)
         {
-            if (Move)
+            turnAround()
+            if (Sense Ahead Food)
             {
-                PickUp
-                turnAround()
-                ensureMove()
-                Drop
+                if (Move)
+                {
+                    PickUp
+                    turnAround()
+                    ensureMove()
+                    Drop
+                }
+                else
+                {
+                    turnAround()
+                }
             }
             else
             {
                 turnAround()
             }
-        }
-        else
-        {
-            turnAround()
         }
     }
     while (Sense Ahead Foe) {}
