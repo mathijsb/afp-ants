@@ -10,7 +10,9 @@ module Stage2.Base (
     Label
 ) where
 
-import Common.Simulator (SenseDir, LeftOrRight, Condition, MarkerNumber)
+import Control.DeepSeq (NFData(..))
+
+import Common.Simulator (SenseDir, LeftOrRight, Condition(Marker), MarkerNumber)
 
 {- $lang
 
@@ -75,23 +77,49 @@ Instructions and all labels are considered case-insensitive.
 -}
 
 data AInstruction 
-   = ASense !SenseDir !Condition !ADest
-   | AMark !MarkerNumber
-   | AUnmark !MarkerNumber
-   | APickUp !ADest
+   = ASense SenseDir Condition ADest
+   | AMark MarkerNumber
+   | AUnmark MarkerNumber
+   | APickUp ADest
    | ADrop
-   | ATurn !LeftOrRight
-   | AMove !ADest
-   | AFlip !Int !ADest
-   | AGoto !Label
-   | AJump !Int
+   | ATurn LeftOrRight
+   | AMove ADest
+   | AFlip Int ADest
+   | AGoto Label
+   | AJump Int
    | ANop
    | ALabel1 String -- Used only in Stage1, probably needs to be refactored...
  deriving Show
 
 type Label = String
-data ADest = ALabel !Label | ARelative !Int
+
+data ADest = ALabel Label | ARelative Int
   deriving (Show, Eq)
+
 newtype Assembler = Assembler { aInstrs :: [([Label], AInstruction)] }
 
+
+instance NFData AInstruction where
+  rnf i = case i of
+    ASense s c d -> s `seq` (rnf (c, d))
+    AMark m      -> m `seq` ()
+    AUnmark m    -> m `seq` ()
+    APickUp d    -> rnf d
+    ATurn lr     -> lr `seq` ()
+    AMove d      -> rnf d
+    AFlip p d    -> rnf (p, d)
+    AGoto l      -> rnf l
+    AJump z      -> rnf z
+    _ -> ()
+
+instance NFData Condition where
+  rnf (Marker m) = rnf m
+  rnf c          = c `seq` ()
+
+instance NFData Assembler where
+  rnf (Assembler a) = rnf a
+
+instance NFData ADest where
+  rnf (ALabel l)    = rnf l
+  rnf (ARelative z) = rnf z
 
