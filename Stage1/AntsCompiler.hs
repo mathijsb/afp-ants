@@ -66,7 +66,7 @@ antsAlgebra = (compileProgram,
 		compileStatementWhile expr sts st = do
 			(labelWhile, labelEnd) <- uniqueLabelTup ("WHILE", "END")			
 			expressionInstructions <- expr st {failDestination = (ALabel labelEnd)}
-			whileInstructions <- mergeGenerators sts st
+			whileInstructions <- mergeGenerators sts st { breakDestination = Just labelEnd }
 			return . concat $ [[ALabel1 labelWhile], expressionInstructions, whileInstructions, 
 				[AGoto labelWhile, ALabel1 labelEnd]]
 
