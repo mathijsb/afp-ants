@@ -20,8 +20,7 @@ data CompilerState = CompilerState {
 	functions :: [LabeledFunction],
 	env :: Environment,
 	failDestination :: ADest,
-	breakDestination :: Maybe Label,
-	context :: String
+	breakDestination :: Maybe Label
 
 }
 
@@ -46,7 +45,7 @@ antsAlgebra = (compileProgram,
 	where
 
 		compileProgram funcs = 
-			let initialState = CompilerState funcs M.empty (ARelative 1) Nothing ""
+			let initialState = CompilerState funcs M.empty (ARelative 1) Nothing
 			    (_, mainGen) = resolveFunction funcs "main"
 			    mainCode = fst . runState (mainGen initialState) $ 0
 			in [ALabel1 "START"] ++ mainCode ++ [AGoto "START"]
