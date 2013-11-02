@@ -47,8 +47,8 @@ clean:
 %/libwxext.a: %/wxext.o
 	ar rcs "$*/libwxext.a" "$*/wxext.o"
 
-%/wxext.o: %/wxext.c
-	g++ `wx-config --cflags` -c -Wall -Werror -fpic -o "$*/wxext.o" "$*/wxext.c"
+%/wxext.o: %/wxext.cpp
+	g++ `wx-config --cxxflags` -c -Wall -Werror -fpic -o "$*/wxext.o" "$*/wxext.cpp"
 
 editor: $(IDE_DEPS)
 	ghc $(GHC_FLAGS) -main-is IDE.Main -lstdc++ $(IDE_PATH)/libwxext.a $(IDE_PATH)/Main.hs -o $@
