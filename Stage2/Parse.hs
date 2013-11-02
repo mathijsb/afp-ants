@@ -10,7 +10,8 @@ import Data.Monoid (mempty)
 import Data.Map (Map)
 import qualified Data.Map as M
 
-import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNumber)
+import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..),
+                         MarkerNumber)
 
 import Stage2.Base
 
@@ -30,7 +31,8 @@ parseAssembler = Assembler
                . map (takeWhile (/=';')) -- Remove comments
                . lines                   -- Newlines separate instructions
                . map toUpper             -- Case insensitivity
-  where parse :: (Int, String) -> [([String], AInstruction)] -> [([String], AInstruction)]
+  where parse :: (Int, String) -> [([String], AInstruction)]
+              -> [([String], AInstruction)]
         parse (n, instr) instrs = 
           case words instr of
             (w : ws) ->
