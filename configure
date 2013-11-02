@@ -6,8 +6,8 @@ makewx()
 {
     echo "Building wxext static library..."
     WX_CXX_FLAGS=`wx-config --version=2.9 --cxxflags` || return 1
-    g++ ${WX_CXX_FLAGS} -c -Wall -Werror -fpic -o wxext.o IDE/wxext.cpp || return 1
-    ar rcs libwxext.a wxext.o || return 1
+    g++ ${WX_CXX_FLAGS} -c -Wall -Werror -fpic -o wxcext.o IDE/wxcext.cpp || return 1
+    ar rcs libwxcext.a wxcext.o || return 1
     return 0
 }
 

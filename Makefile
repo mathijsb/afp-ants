@@ -1,6 +1,6 @@
 IDE    = Main.hs \
          WXExt.hs \
-         libwxext.a
+         libwxcext.a
 
 SIM    = Main.hs
 
@@ -37,7 +37,7 @@ STAGE2_DEPS = $(patsubst %,$(STAGE2_PATH)/%,$(STAGE2))
 COMMON_DEPS = $(patsubst %,$(COMMON_PATH)/%,$(COMMON))
 SIM_DEPS    = $(patsubst %,$(SIM_PATH)/%,$(SIM))
 
-GHC_FLAGS    = -cpp --make -O2
+GHC_FLAGS    = --make -O2
 WX_CXX_FLAGS = `wx-config --version=2.9 --cxxflags`
 
 clean:
@@ -46,14 +46,14 @@ clean:
 	rm -f $(patsubst %.hs,$(COMMON_PATH)/%.o,$(COMMON)) $(patsubst %.hs,$(COMMON_PATH)/%.hi,$(COMMON))
 	rm -f $(patsubst %.hs,$(SIM_PATH)/%.o,$(SIM)) $(patsubst %.hs,$(SIM_PATH)/%.hi,$(SIM))
 	rm -f $(patsubst %.hs,$(IDE_PATH)/%.o,$(IDE)) $(patsubst %.hs,$(IDE_PATH)/%.hi,$(IDE))
-	rm -f $(IDE_PATH)/libwxext.a $(IDE_PATH)/wxext.o
+	rm -f $(IDE_PATH)/libwxcext.a $(IDE_PATH)/wxcext.o
 	rm -f afa asc sim editor
 
-%/libwxext.a: %/wxext.o
-	ar rcs "$*/libwxext.a" "$*/wxext.o"
+%/libwxcext.a: %/wxcext.o
+	ar rcs "$@" "$*/wxcext.o"
 
-%/wxext.o: %/wxext.cpp
-	g++ $(WX_CXX_FLAGS) -c -Wall -Werror -fpic -o "$*/wxext.o" "$*/wxext.cpp"
+%/wxcext.o: %/wxcext.cpp
+	g++ $(WX_CXX_FLAGS) -c -Wall -Werror -fpic -o "$@" "$*/wxcext.cpp"
 
 editor: $(IDE_DEPS)
 	ghc $(GHC_FLAGS) -main-is IDE.Main -lstdc++ $(IDE_PATH)/libwxext.a $(IDE_PATH)/Main.hs -o $@

@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module IDE.Main where
 
 import Graphics.UI.WXCore
@@ -48,10 +50,16 @@ antsUI     = do
         
         -- taksbar menu
         file    <- menuPane      [text := "Bestand"]
-        open    <- menuItem file [text := "&Openen\tCtrl+O",  help := "Instructieset openen"]
-        save    <- menuItem file [text := "O&pslaan\tCtrl+S", help := "Instructieset opslaan"]
-        saveAs  <- menuItem file [text := "Op&slaan als...\tCtrl+Shift+S", help := "Instructieset opslaan onder een andere naam"]
-        quit       <- menuQuit file [help := "&Afsluiten\tCtrl+Q"]
+        open    <- menuItem file [text := "Script &openen\tCtrl+O"]
+        save    <- menuItem file [text := "Script o&pslaan\tCtrl+S"]
+        saveAs  <- menuItem file [text := "Script op&slaan als...\tCtrl+Shift+S"]
+        menuLine file
+        comp    <- menuPane      [text := "Compileren"]
+        compile <- menuItem comp [text := "&Compileren\tCtrl+1"]
+        export  <- menuItem comp [text := "Compileren &en opslaan...\tCtrl+E"]
+        compS   <- menuSub file comp [text := "Compileren"]
+        menuLine file
+        quit    <- menuQuit file [text := "&Afsluiten\tCtrl+Q"]
         
         status <- statusField   [text := ""]
         
@@ -67,17 +75,22 @@ antsUI     = do
         let eds = ED { asl = asl, afa = afa, ant = ant, file = current, top = f }
         
         set bottom [layout := fill $ row 5 [fill $ widget afa, fill $ widget ant]]
-        set f [layout          := fill $ hsplit p 5 400 (fill $ widget asl) (fill $ widget bottom),
-              statusBar        := [status],
-              menuBar          := [file],
-              size        := sz screenW screenH,
-              on (menu quit)   := close f,
-              on (menu open)   := openASL eds,
-              on (menu save)   := saveASL eds False,
-              on (menu saveAs) := saveASL eds True]
+        set f [layout           := fill $ hsplit p 5 400 (fill $ widget asl) (fill $ widget bottom),
+              statusBar         := [status],
+              menuBar           := [file],
+              size              := sz screenW screenH,
+              on (menu quit)    := close f,
+              on (menu open)    := openASL eds,
+              on (menu save)    := saveASL eds False,
+              on (menu saveAs)  := saveASL eds True,
+              on (menu compile) := compileAnt False eds,
+              on (menu export)  := compileAnt True eds]
+
+compileAnt :: Bool -> Editors -> IO ()
+compileAnt = undefined
 
 clear :: Editors -> IO ()
-clear e = mapM_ (\e -> set e [text := ""]) [asl e, afa e, ant e]
+clear e = mapM_ (flip (setText e) "") [asl, afa, ant]
 
 setText :: Editors -> (Editors -> Editor) -> String -> IO ()
 setText eds sel = styledTextCtrlSetText (sel eds)

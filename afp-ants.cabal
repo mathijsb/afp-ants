@@ -30,7 +30,8 @@ executable AntEditor
                        deepseq ==1.3.*,
                        filepath ==1.3.*,
                        old-time ==1.1.*
-  ghc-options:         -main-is IDE.Main -cpp -DCABAL_MODULE
+  ghc-options:         -main-is IDE.Main
+  cpp-options:         -DCABAL_MODULE
 
 
 executable AntCompiler
