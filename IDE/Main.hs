@@ -49,32 +49,18 @@ antsUI     = do
         status <- statusField   [text := ""]
         
         -- panel for the workspace
-        progSplit <- splitterWindow f []
-        top <- panel progSplit []
-        topSplit <- splitterWindow top []
-        left <- panel topSplit []
-        leftSplit <- splitterWindow left []
-        
+        p <- splitterWindow f []
+        bottom <- panel p []
         
         current <- newIORef Nothing
-        asl <- aslEditor leftSplit []
-        afa <- afaEditor leftSplit []
-        ant <- antEditor topSplit []
+        asl <- aslEditor p []
+        afa <- afaEditor bottom []
+        ant <- antEditor bottom []
          
         let eds = ED { asl = asl, afa = afa, ant = ant, file = current, top = f }
-
-        logtext <- textCtrlEx progSplit wxHSCROLL [font := fontFixed,
-                 wrap := WrapNone,
-                 text := ""]
-
-        let layoutProg = hsplit progSplit 5 400 (fill $ widget top) (fill $ widget logtext)
-            layoutTop  = vsplit topSplit 5 300 (fill $ widget left) (fill $ widget ant)
-            layoutLeft = vsplit leftSplit 5 250 (fill $ widget asl) (fill $ widget afa)
         
-        set left [layout := fill $ layoutLeft]
-        set top [layout := fill $ layoutTop]
-        
-        set f [layout          := stretch $ fill $ layoutProg,
+        set bottom [layout := fill $ row 5 [fill $ widget afa, fill $ widget ant]]
+        set f [layout          := fill $ hsplit p 5 400 (fill $ widget asl) (fill $ widget bottom),
               statusBar        := [status],
               menuBar          := [file],
               size        := sz screenW screenH,
@@ -100,7 +86,8 @@ setCurrentFile eds f = do
 
 openASL :: Editors -> IO ()
 openASL eds = do
-    f <- fileOpenDialog (asl eds) True True "Instructieset openen..." [("Ant Scripting Language bestanden", ["*.asl"])] "" ""
+    f <- fileOpenDialog (asl eds) True True "Instructieset openen..." 
+         [("Ant Scripting Language bestanden", ["*.asl"])] "" ""
     case f of
       Nothing -> return ()
       Just f -> do
@@ -111,7 +98,8 @@ openASL eds = do
 
 saveASL :: Editors -> Bool -> IO ()
 saveASL eds as | as = do
-  f <- fileSaveDialog (asl eds) True False "Instructieset opslaan als..." [("Ant Scripting Language bestanden", ["*.asl"])] "" ""
+  f <- fileSaveDialog (asl eds) True False "Instructieset opslaan als..." 
+       [("Ant Scripting Language bestanden", ["*.asl"])] "" ""
   case f of
       Nothing -> return ()
       Just f -> do
