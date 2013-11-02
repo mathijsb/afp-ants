@@ -4,6 +4,8 @@ import Graphics.UI.WXCore
 import Graphics.UI.WX
 import Debug.Trace
 import Data.Bits
+import Data.IORef
+import System.FilePath.Posix
 
 import IDE.WXExt
 
@@ -16,50 +18,118 @@ screenW = 800
 screenH = 600
 -------------
 
+
 main :: IO ()
 main = start antsUI
 
+type Editor = StyledTextCtrl ()
+type CurrentFile = IORef (Maybe FilePath)
+
+data Editors = ED { asl :: Editor,
+                    afa :: Editor,
+                    ant :: Editor,
+                    file :: CurrentFile,
+                    top :: Frame () }
+
+title :: String
+title = "AntsBuilder 0.1"
+
 antsUI :: IO ()
-antsUI 	= do 
+antsUI     = do 
 
-		f		<- frame [text := "AntsBuilder 0.1"]
-		
-		-- taksbar menu
-		file	<- menuPane      [text := "&Bestand"]
-		open	<- menuItem file [text := "&Laden\tCtrl+O",  help := "Open een instructieset"]
-		save    <- menuItem file [text := "&Bewaren\tCtrl+S", help := "Bewaar een instructieset"]
-		quit   	<- menuQuit file [help := "Afsluiten"]
-		
-		status <- statusField   [text := ""]
-		
-		-- panel for the workspace
-		p <- panelCreate f idAny rectNull 0
-		
-		editor <- aslEditor p [text := ""]
- 		editor2 <- afaEditor p [text := ""]
- 		editor3 <- antEditor p [text := ""]
+        f        <- frame [text := title]
+        
+        -- taksbar menu
+        file    <- menuPane      [text := "Bestand"]
+        open    <- menuItem file [text := "&Openen\tCtrl+O",  help := "Instructieset openen"]
+        save    <- menuItem file [text := "O&pslaan\tCtrl+S", help := "Instructieset opslaan"]
+        saveAs  <- menuItem file [text := "Op&slaan als...\tCtrl+Shift+S", help := "Instructieset opslaan onder een andere naam"]
+        quit       <- menuQuit file [help := "&Afsluiten\tCtrl+Q"]
+        
+        status <- statusField   [text := ""]
+        
+        -- panel for the workspace
+        progSplit <- splitterWindow f []
+        top <- panel progSplit []
+        topSplit <- splitterWindow top []
+        left <- panel topSplit []
+        leftSplit <- splitterWindow left []
+        
+        
+        current <- newIORef Nothing
+        asl <- aslEditor leftSplit []
+        afa <- afaEditor leftSplit []
+        ant <- antEditor topSplit []
+         
+        let eds = ED { asl = asl, afa = afa, ant = ant, file = current, top = f }
 
- 		logtext <- textCtrlEx f wxHSCROLL [font := fontFixed,
- 				 wrap := WrapNone,
-				 text := ""]
+        logtext <- textCtrlEx progSplit wxHSCROLL [font := fontFixed,
+                 wrap := WrapNone,
+                 text := ""]
 
-		set p [layout := row 5 [fill $ widget editor, fill $ widget editor2, fill $ widget editor3]]
+        let layoutProg = hsplit progSplit 5 400 (fill $ widget top) (fill $ widget logtext)
+            layoutTop  = vsplit topSplit 5 300 (fill $ widget left) (fill $ widget ant)
+            layoutLeft = vsplit leftSplit 5 250 (fill $ widget asl) (fill $ widget afa)
+        
+        set left [layout := fill $ layoutLeft]
+        set top [layout := fill $ layoutTop]
+        
+        set f [layout          := stretch $ fill $ layoutProg,
+              statusBar        := [status],
+              menuBar          := [file],
+              size        := sz screenW screenH,
+              on (menu quit)   := close f,
+              on (menu open)   := openASL eds,
+              on (menu save)   := saveASL eds False,
+              on (menu saveAs) := saveASL eds True]
 
-		set f [layout           := stretch $ fill $ column 5 [stretch $ fill $ widget p, stretch $ fill $ widget logtext],
-			  statusBar := [status],
-			  menuBar := [file],
-			  outerSize        := sz screenW screenH,
-			  on (menu quit)   := close f,
-			  on (menu open)   := undefined, --TODO
-			  on (menu save)   := undefined] --TODO
-		where
-			loadWorkspace = undefined 				--TODO
-			saveWorkspace = undefined				--TODO
+clear :: Editors -> IO ()
+clear e = mapM_ (\e -> set e [text := ""]) [asl e, afa e, ant e]
+
+setText :: Editors -> (Editors -> Editor) -> String -> IO ()
+setText eds sel = styledTextCtrlSetText (sel eds)
+
+getText :: Editors -> (Editors -> Editor) -> IO String
+getText eds sel = styledTextCtrlGetText (sel eds)
+
+setCurrentFile :: Editors -> FilePath -> IO ()
+setCurrentFile eds f = do
+    writeIORef (file eds) (Just f)
+    let (fdir, fname) = splitFileName f
+    set (top eds) [text := fname ++ " (" ++ fdir ++ ") - " ++ title]
+
+openASL :: Editors -> IO ()
+openASL eds = do
+    f <- fileOpenDialog (asl eds) True True "Instructieset openen..." [("Ant Scripting Language bestanden", ["*.asl"])] "" ""
+    case f of
+      Nothing -> return ()
+      Just f -> do
+        clear eds
+        input <- readFile f
+        setCurrentFile eds f
+        setText eds asl input
+
+saveASL :: Editors -> Bool -> IO ()
+saveASL eds as | as = do
+  f <- fileSaveDialog (asl eds) True False "Instructieset opslaan als..." [("Ant Scripting Language bestanden", ["*.asl"])] "" ""
+  case f of
+      Nothing -> return ()
+      Just f -> do
+        output <- getText eds asl
+        writeFile f output
+        setCurrentFile eds f
+               | True = do
+  f <- readIORef (file eds)
+  case f of
+      Nothing -> saveASL eds True
+      Just f -> do
+        output <- getText eds asl
+        writeFile f output
 
 codeEditor p prop = do
     ed <- styledTextCtrlEx p (wxHSCROLL .|. wxTE_MULTILINE) prop
     styledTextCtrlSetMarginType ed 0 wxSTC_MARGIN_TEXT
-    styledTextCtrlSetMarginWidth ed 0 22
+    styledTextCtrlSetMarginWidth ed 0 45
     styledTextCtrlSetMarginWidth ed 1 0
     styledTextCtrlSetMarginWidth ed 2 0
     styledTextCtrlStyleSetSpec ed wxSTC_STYLE_LINENUMBER "size:10,face:monospace"
