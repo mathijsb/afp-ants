@@ -42,7 +42,7 @@ clean:
 	rm -f $(patsubst %.hs,$(IDE_PATH)/%.o,$(IDE)) $(patsubst %.hs,$(IDE_PATH)/%.hi,$(IDE))
 	rm -f $(IDE_PATH)/libwxext.a $(IDE_PATH)/wxext.o
 	rm -f Ants.hi Ants.o
-	rm -f afa ants gui ide
+	rm -f afa ants gui editor
 
 %/libwxext.a: %/wxext.o
 	ar rcs "$*/libwxext.a" "$*/wxext.o"
@@ -50,7 +50,7 @@ clean:
 %/wxext.o: %/wxext.c
 	g++ `wx-config --cflags` -c -Wall -Werror -fpic -o "$*/wxext.o" "$*/wxext.c"
 
-ide: $(IDE_DEPS)
+editor: $(IDE_DEPS)
 	ghc $(GHC_FLAGS) -main-is IDE.Main -lstdc++ $(IDE_PATH)/libwxext.a $(IDE_PATH)/Main.hs -o $@
 
 sim: $(COMMON_DEPS) Ants.hs
