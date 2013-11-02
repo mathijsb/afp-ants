@@ -6,8 +6,15 @@ import Debug.Trace
 import Data.Bits
 import Data.IORef
 import System.FilePath.Posix
+import Data.Version
 
 import IDE.WXExt
+#ifdef CABAL_MODULE
+import Paths_afp_ants (version)
+#else
+version :: Version
+version = Version [0,1] ["dev"]
+#endif
 
 --parameters
 blockW = 100
@@ -32,11 +39,11 @@ data Editors = ED { asl :: Editor,
                     top :: Frame () }
 
 title :: String
-title = "AntsBuilder 0.1"
+title = "AntsEditor " ++ showVersion version
 
 antsUI :: IO ()
 antsUI     = do 
-
+        
         f        <- frame [text := title]
         
         -- taksbar menu
@@ -115,13 +122,14 @@ saveASL eds as | as = do
         writeFile f output
 
 codeEditor p prop = do
+    fixedFont <- findFixedFontFace
     ed <- styledTextCtrlEx p (wxHSCROLL .|. wxTE_MULTILINE) prop
     styledTextCtrlSetMarginType ed 0 wxSTC_MARGIN_TEXT
     styledTextCtrlSetMarginWidth ed 0 45
     styledTextCtrlSetMarginWidth ed 1 0
     styledTextCtrlSetMarginWidth ed 2 0
-    styledTextCtrlStyleSetSpec ed wxSTC_STYLE_LINENUMBER "size:10,face:monospace"
-    styledTextCtrlStyleSetSpec ed wxSTC_STYLE_DEFAULT "size:12,face:monospace"
+    styledTextCtrlStyleSetSpec ed wxSTC_STYLE_LINENUMBER $ "size:8,face:" ++ fixedFont
+    styledTextCtrlStyleSetSpec ed wxSTC_STYLE_DEFAULT $ "size:10,face:" ++ fixedFont
     styledTextCtrlSetCaretLineBackground ed (rgb 240 240 240)
     styledTextCtrlSetCaretLineVisible ed True
     styledTextCtrlSetTabWidth ed 4

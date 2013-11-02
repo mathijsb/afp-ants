@@ -37,7 +37,7 @@ STAGE2_DEPS = $(patsubst %,$(STAGE2_PATH)/%,$(STAGE2))
 COMMON_DEPS = $(patsubst %,$(COMMON_PATH)/%,$(COMMON))
 SIM_DEPS    = $(patsubst %,$(SIM_PATH)/%,$(SIM))
 
-GHC_FLAGS    = --make -O2
+GHC_FLAGS    = -cpp --make -O2
 WX_CXX_FLAGS = `wx-config --version=2.9 --cxxflags`
 
 clean:

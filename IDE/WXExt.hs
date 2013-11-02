@@ -8,7 +8,8 @@
 
 module IDE.WXExt (
     wxSTC_MARGIN_TEXT,
-    styledTextCtrlMarginSetText
+    styledTextCtrlMarginSetText,
+    findFixedFontFace
 ) where
 
 import Foreign.C.Types(CInt(..), CWchar(..), CChar(..), CDouble(..))
@@ -26,4 +27,10 @@ styledTextCtrlMarginSetText _obj line text
     wxStyledTextCtrl_MarginSetText cobj__obj (toCInt line) cobj_text  
 foreign import ccall "wxStyledTextCtrl_MarginSetText" wxStyledTextCtrl_MarginSetText :: Ptr (TStyledTextCtrl a) -> CInt -> Ptr (TWxString b) -> IO ()
 
+-- | usage: (@findFixedFontFace@).
+findFixedFontFace :: IO (String)
+findFixedFontFace 
+  = withManagedStringResult $
+    find_fixed_font_face 
+foreign import ccall "find_fixed_font_face" find_fixed_font_face :: IO (Ptr (TWxString ()))
 
