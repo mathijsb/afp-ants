@@ -56,7 +56,7 @@ clean:
 	g++ $(WX_CXX_FLAGS) -c -Wall -Werror -fpic -o "$@" "$*/wxcext.cpp"
 
 editor: $(IDE_DEPS)
-	ghc $(GHC_FLAGS) -main-is IDE.Main -lstdc++ $(IDE_PATH)/libwxext.a $(IDE_PATH)/Main.hs -o $@
+	ghc $(GHC_FLAGS) -main-is IDE.Main -optl $(IDE_PATH)/libwxcext.a -optl-lstdc++ $(IDE_PATH)/Main.hs -o $@
 
 sim: $(COMMON_DEPS) $(SIM_DEPS)
 	ghc $(GHC_FLAGS) Ants -o $@
