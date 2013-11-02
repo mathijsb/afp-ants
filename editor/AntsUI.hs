@@ -1,6 +1,7 @@
 import Graphics.UI.WXCore
 import Graphics.UI.WX
 import Debug.Trace
+import Data.Bits
 
 --parameters
 blockW = 100
@@ -30,34 +31,23 @@ antsUI 	= do
 		-- panel for the workspace
 		p <- panelCreate f idAny rectNull 0
 		
-		editor <- textCtrl p [font := fontFixed,
+		editor <- textCtrlEx p wxHSCROLL [font := fontFixed,
 				 wrap := WrapNone,
-				 text := "This is our first step in the " ++
-         				 "developing of our text editor.\n" ++
-          				 "Just a big text area where " ++
-           				 "the user can read and write text\n" ++
-            			 "That's not much, but it's just the " ++
- 			             "beginning..."]
- 		editor2 <- textCtrl p [font := fontFixed,
+				 text := ""]
+ 		editor2 <- textCtrlEx p wxHSCROLL [font := fontFixed,
  				 wrap := WrapNone,
-				 text := "This is our first step in the " ++
-         				 "developing of our text editor.\n" ++
-          				 "Just a big text area where " ++
-           				 "the user can read and write text\n" ++
-            			 "That's not much, but it's just the " ++
- 			             "beginning..."]
- 		editor3 <- textCtrlRich p [font := fontFixed,
+				 text := ""]
+ 		editor3 <- textCtrlEx p wxHSCROLL [font := fontFixed,
  				 wrap := WrapNone,
-				 text := "This is our first step in the " ++
-         				 "developing of our text editor.\n" ++
-          				 "Just a big text area where " ++
-           				 "the user can read and write text\n" ++
-            			 "That's not much, but it's just the " ++
- 			             "beginning..."]
+				 text := ""]
 
-		set p [layout := row 3 [fill $ widget editor, fill $ widget editor2, fill $ widget editor3]]
+ 		logtext <- textCtrlEx f wxHSCROLL [font := fontFixed,
+ 				 wrap := WrapNone,
+				 text := ""]
 
-		set f [layout           := stretch $ fill $ widget p,
+		set p [layout := row 5 [fill $ widget editor, fill $ widget editor2, fill $ widget editor3]]
+
+		set f [layout           := stretch $ fill $ column 5 [stretch $ fill $ widget p, stretch $ fill $ widget logtext],
 			  statusBar := [status],
 			  menuBar := [file],
 			  outerSize        := sz screenW screenH,
