@@ -1,4 +1,5 @@
-IDE    = AntsUI.hs \
+IDE    = Main.hs \
+         WXExt.hs \
          libwxext.a
 
 STAGE1 = AntsBase.hs \
@@ -22,19 +23,24 @@ COMMON = Caching.hs \
          ReadWorld.hs \
          Simulator.hs
 
-IDE_DEPS    = $(patsubst %,editor/%,$(IDE))
-STAGE1_DEPS = $(patsubst %,Stage1/%,$(STAGE1))
-STAGE2_DEPS = $(patsubst %,Stage2/%,$(STAGE2))
-COMMON_DEPS = $(patsubst %,Common/%,$(COMMON))
+IDE_PATH    = IDE
+STAGE1_PATH = Stage1
+STAGE2_PATH = Stage2
+COMMON_PATH = Common
+
+IDE_DEPS    = $(patsubst %,$(IDE_PATH)/%,$(IDE))
+STAGE1_DEPS = $(patsubst %,$(STAGE1_PATH)/%,$(STAGE1))
+STAGE2_DEPS = $(patsubst %,$(STAGE2_PATH)/%,$(STAGE2))
+COMMON_DEPS = $(patsubst %,$(COMMON_PATH)/%,$(COMMON))
 
 GHC_FLAGS = --make -O2
 
 clean:
-	rm -f $(patsubst %.hs,Stage1/%.o,$(STAGE1)) $(patsubst %.hs,Stage1/%.hi,$(STAGE1))
-	rm -f $(patsubst %.hs,Stage2/%.o,$(STAGE2)) $(patsubst %.hs,Stage2/%.hi,$(STAGE2))
-	rm -f $(patsubst %.hs,Common/%.o,$(COMMON)) $(patsubst %.hs,Common/%.hi,$(COMMON))
-	rm -f $(patsubst %.hs,editor/%.o,$(IDE)) $(patsubst %.hs,editor/%.hi,$(IDE))
-	rm -f editor/libwxext.a editor/wxext.o
+	rm -f $(patsubst %.hs,$(STAGE1_PATH)/%.o,$(STAGE1)) $(patsubst %.hs,$(STAGE1_PATH)/%.hi,$(STAGE1))
+	rm -f $(patsubst %.hs,$(STAGE2_PATH)/%.o,$(STAGE2)) $(patsubst %.hs,$(STAGE2_PATH)/%.hi,$(STAGE2))
+	rm -f $(patsubst %.hs,$(COMMON_PATH)/%.o,$(COMMON)) $(patsubst %.hs,$(COMMON_PATH)/%.hi,$(COMMON))
+	rm -f $(patsubst %.hs,$(IDE_PATH)/%.o,$(IDE)) $(patsubst %.hs,$(IDE_PATH)/%.hi,$(IDE))
+	rm -f $(IDE_PATH)/libwxext.a $(IDE_PATH)/wxext.o
 	rm -f Ants.hi Ants.o
 	rm -f afa ants gui ide
 
@@ -44,17 +50,17 @@ clean:
 %/wxext.o: %/wxext.c
 	g++ `wx-config --cflags` -c -Wall -Werror -fpic -o "$*/wxext.o" "$*/wxext.c"
 
-ide: $(IDE_DEPS) libwxext.a
-	ghc $(GHC_FLAGS) -lstdc++ editor/libwxext.a editor/AntsUI.hs -o $@
+ide: $(IDE_DEPS)
+	ghc $(GHC_FLAGS) -main-is IDE.Main -lstdc++ $(IDE_PATH)/libwxext.a $(IDE_PATH)/Main.hs -o $@
 
 sim: $(COMMON_DEPS) Ants.hs
 	ghc $(GHC_FLAGS) Ants -o $@
 
 ants: $(COMMON_DEPS) $(STAGE1_DEPS)
-	ghc $(GHC_FLAGS) -main-is Stage1.Ants Stage1/Ants.hs -o $@
+	ghc $(GHC_FLAGS) -main-is Stage1.Ants $(STAGE1_PATH)/Ants.hs -o $@
 
 afa: $(COMMON_DEPS) $(STAGE2_DEPS)
-	ghc $(GHC_FLAGS) -main-is Stage2.Main Stage2/Main.hs -o $@
+	ghc $(GHC_FLAGS) -main-is Stage2.Main $(STAGE2_PATH)/Main.hs -o $@
 
 %.afa: ants %.asl
 	./ants "$*.asl" | sed '1,/Compiled/d' > "$*.afa"

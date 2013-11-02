@@ -1,13 +1,11 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
-
-import Foreign.C.Types(CInt(..), CWchar(..), CChar(..), CDouble(..))
-import Graphics.UI.WXCore.WxcTypes
-import Graphics.UI.WXCore.WxcClassTypes
+module IDE.Main where
 
 import Graphics.UI.WXCore
 import Graphics.UI.WX
 import Debug.Trace
 import Data.Bits
+
+import IDE.WXExt
 
 --parameters
 blockW = 100
@@ -122,16 +120,4 @@ updateLabels c n (STCUpdateUI) = do
     f <- styledTextCtrlGetFirstVisibleLine c
     mapM_ (\l -> styledTextCtrlMarginSetText c l (show (l + n))) [f..f+t]
 updateLabels _ _ _ = return ()
-
-wxSTC_MARGIN_TEXT :: Int
-wxSTC_MARGIN_TEXT = 4
-
--- | usage: (@styledTextCtrlMarginSetText obj line text@).
-styledTextCtrlMarginSetText :: StyledTextCtrl  a -> Int -> String ->  IO ()
-styledTextCtrlMarginSetText _obj line text 
-  = withObjectRef "styledTextCtrlMarginSetText" _obj $ \cobj__obj -> 
-    withStringPtr text $ \cobj_text -> 
-    wxStyledTextCtrl_MarginSetText cobj__obj (toCInt line) cobj_text  
-foreign import ccall "wxStyledTextCtrl_MarginSetText" wxStyledTextCtrl_MarginSetText :: Ptr (TStyledTextCtrl a) -> CInt -> Ptr (TWxString b) -> IO ()
-
 
