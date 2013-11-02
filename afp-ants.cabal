@@ -1,0 +1,92 @@
+name:                afp-ants
+version:             0.1.0.0
+synopsis:            AFP 2013 'Dinner for Ambiants' project
+-- description:         
+license:             AllRightsReserved
+-- license-file:        LICENSE
+author:              Bert Massop, Mathijs Baaijens, Nico Naus
+maintainer:          B.Massop@uu.nl
+-- copyright:           
+-- category:            
+build-type:          Configure
+cabal-version:       >=1.8
+
+extra-tmp-files:     libwxext.a
+                     wxext.o
+extra-source-files:  IDE/wxext.cpp
+                     AntEditor.buildinfo.in
+                     configure
+
+executable AntEditor
+  main-is:             IDE/Main.hs
+  other-modules:       IDE.WXExt
+  build-depends:       base >=4 && <5,
+                       wxcore ==0.90.*,
+                       wx ==0.90.*,
+                       array ==0.4.*,
+                       containers ==0.5.*,
+                       mtl ==2.1.*,
+                       unordered-containers ==0.2.*,
+                       deepseq ==1.3.*,
+                       filepath ==1.3.*,
+                       old-time ==1.1.*
+  ghc-options:         -main-is IDE.Main
+
+
+executable AntCompiler
+  main-is:             Stage1/Ants.hs
+  other-modules:       Stage1.AntsBase
+                       Stage1.AntsCompiler
+                       Stage1.AntsParser
+                       Stage1.AntsLexer
+                       Stage1.AntsPrettyPrinter
+                       Stage2.Base
+  build-depends:       base >=4 && <5,
+                       array ==0.4.*,
+                       containers ==0.5.*,
+                       mtl ==2.1.*,
+                       unordered-containers ==0.2.*,
+                       deepseq ==1.3.*,
+                       filepath ==1.3.*,
+                       old-time ==1.1.*
+  build-tools:         alex, happy
+  ghc-options:         -main-is Stage1.Ants
+
+executable AntAssembler
+  main-is:             Stage2/Main.hs
+  other-modules:       Stage2.Assembler
+                       Stage2.Base
+                       Stage2.Main
+                       Stage2.Parse
+                       Stage2.PrettyPrint
+                       Common.Simulator
+  build-depends:       base >=4 && <5,
+                       array ==0.4.*,
+                       containers ==0.5.*,
+                       mtl ==2.1.*,
+                       unordered-containers ==0.2.*,
+                       deepseq ==1.3.*,
+                       filepath ==1.3.*,
+                       old-time ==1.1.*
+  ghc-options:         -main-is Stage2.Main
+
+executable AntSimulator
+  main-is:             Simulator/Main.hs
+  other-modules:       Common.Simulator
+                       Common.Caching
+                       Common.ReadWorld
+                       Common.ReadInstructions
+                       Common.Options
+                       Common.GamePlay
+  build-depends:       base >=4 && <5,
+                       wxcore ==0.90.*,
+                       wx ==0.90.*,
+                       array ==0.4.*,
+                       containers ==0.5.*,
+                       mtl ==2.1.*,
+                       unordered-containers ==0.2.*,
+                       deepseq ==1.3.*,
+                       filepath ==1.3.*,
+                       old-time ==1.1.*
+  ghc-options:         -main-is Simulator.Main
+

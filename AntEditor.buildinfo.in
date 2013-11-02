@@ -1,0 +1,4 @@
+executable: AntEditor
+buildable:  @WXEXT_OK@
+ld-options: libwxext.a
+extra-libraries: stdc++

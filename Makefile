@@ -2,6 +2,8 @@ IDE    = Main.hs \
          WXExt.hs \
          libwxext.a
 
+SIM    = Main.hs
+
 STAGE1 = AntsBase.hs \
          AntsCompiler.hs \
          AntsParser.hs \
@@ -27,36 +29,39 @@ IDE_PATH    = IDE
 STAGE1_PATH = Stage1
 STAGE2_PATH = Stage2
 COMMON_PATH = Common
+SIM_PATH    = Simulator
 
 IDE_DEPS    = $(patsubst %,$(IDE_PATH)/%,$(IDE))
 STAGE1_DEPS = $(patsubst %,$(STAGE1_PATH)/%,$(STAGE1))
 STAGE2_DEPS = $(patsubst %,$(STAGE2_PATH)/%,$(STAGE2))
 COMMON_DEPS = $(patsubst %,$(COMMON_PATH)/%,$(COMMON))
+SIM_DEPS    = $(patsubst %,$(SIM_PATH)/%,$(SIM))
 
-GHC_FLAGS = --make -O2
+GHC_FLAGS    = --make -O2
+WX_CXX_FLAGS = `wx-config --version=2.9 --cxxflags`
 
 clean:
 	rm -f $(patsubst %.hs,$(STAGE1_PATH)/%.o,$(STAGE1)) $(patsubst %.hs,$(STAGE1_PATH)/%.hi,$(STAGE1))
 	rm -f $(patsubst %.hs,$(STAGE2_PATH)/%.o,$(STAGE2)) $(patsubst %.hs,$(STAGE2_PATH)/%.hi,$(STAGE2))
 	rm -f $(patsubst %.hs,$(COMMON_PATH)/%.o,$(COMMON)) $(patsubst %.hs,$(COMMON_PATH)/%.hi,$(COMMON))
+	rm -f $(patsubst %.hs,$(SIM_PATH)/%.o,$(SIM)) $(patsubst %.hs,$(SIM_PATH)/%.hi,$(SIM))
 	rm -f $(patsubst %.hs,$(IDE_PATH)/%.o,$(IDE)) $(patsubst %.hs,$(IDE_PATH)/%.hi,$(IDE))
 	rm -f $(IDE_PATH)/libwxext.a $(IDE_PATH)/wxext.o
-	rm -f Ants.hi Ants.o
-	rm -f afa ants gui editor
+	rm -f afa asc sim editor
 
 %/libwxext.a: %/wxext.o
 	ar rcs "$*/libwxext.a" "$*/wxext.o"
 
 %/wxext.o: %/wxext.cpp
-	g++ `wx-config --cxxflags` -c -Wall -Werror -fpic -o "$*/wxext.o" "$*/wxext.cpp"
+	g++ $(WX_CXX_FLAGS) -c -Wall -Werror -fpic -o "$*/wxext.o" "$*/wxext.cpp"
 
 editor: $(IDE_DEPS)
 	ghc $(GHC_FLAGS) -main-is IDE.Main -lstdc++ $(IDE_PATH)/libwxext.a $(IDE_PATH)/Main.hs -o $@
 
-sim: $(COMMON_DEPS) Ants.hs
+sim: $(COMMON_DEPS) $(SIM_DEPS)
 	ghc $(GHC_FLAGS) Ants -o $@
 
-ants: $(COMMON_DEPS) $(STAGE1_DEPS)
+asc: $(COMMON_DEPS) $(STAGE1_DEPS)
 	ghc $(GHC_FLAGS) -main-is Stage1.Ants $(STAGE1_PATH)/Ants.hs -o $@
 
 afa: $(COMMON_DEPS) $(STAGE2_DEPS)

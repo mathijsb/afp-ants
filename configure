@@ -1,0 +1,23 @@
+#!/bin/sh
+
+BUILDINFO=AntEditor.buildinfo
+
+makewx()
+{
+    echo "Building wxext static library..."
+    WX_CXX_FLAGS=`wx-config --version=2.9 --cxxflags` || return 1
+    g++ ${WX_CXX_FLAGS} -c -Wall -Werror -fpic -o wxext.o IDE/wxext.cpp || return 1
+    ar rcs libwxext.a wxext.o || return 1
+    return 0
+}
+
+if makewx
+then
+    echo "Ok."
+    sed 's/@WXEXT_OK@/True/' $BUILDINFO.in > $BUILDINFO
+else
+    echo "Building failed, disabling AntEditor build."
+    sed 's/@WXEXT_OK@/False/' $BUILDINFO.in > $BUILDINFO
+fi
+
+
