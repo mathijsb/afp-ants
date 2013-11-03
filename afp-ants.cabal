@@ -7,9 +7,10 @@ maintainer:          B.Massop@uu.nl
 build-type:          Configure
 cabal-version:       >=1.8
 
-extra-tmp-files:     libwxext.a
-                     wxext.o
-extra-source-files:  IDE/wxext.cpp
+extra-tmp-files:     libwxcext.a
+                     wxcext.o
+                     AntEditor.buildinfo
+extra-source-files:  IDE/wxcext.cpp
                      AntEditor.buildinfo.in
                      configure
 
