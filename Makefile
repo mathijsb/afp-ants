@@ -59,7 +59,7 @@ editor: $(IDE_DEPS) $(STAGE1_DEPS) $(STAGE2_DEPS)
 	ghc $(GHC_FLAGS) -main-is IDE.Main -optl $(IDE_PATH)/libwxcext.a -optl-lstdc++ $(IDE_PATH)/Main.hs -o $@
 
 sim: $(COMMON_DEPS) $(SIM_DEPS)
-	ghc $(GHC_FLAGS) Ants -o $@
+	ghc $(GHC_FLAGS) Simulator/Main.hs -o $@
 
 asc: $(COMMON_DEPS) $(STAGE1_DEPS)
 	alex Stage1/AntsLexer.x
