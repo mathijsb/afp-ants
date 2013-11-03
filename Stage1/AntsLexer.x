@@ -22,6 +22,7 @@ tokens :-
   -- Whitespace & comments.
   $white+							;
   "--".*							;
+  "//".*              ;
 
   function        { \s -> TokenFunction }
   \{              { \s -> TokenBraceLeft }
