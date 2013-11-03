@@ -9,8 +9,21 @@ import Data.Bits
 import Data.IORef
 import System.FilePath.Posix
 import Data.Version
+import Control.Exception
+
+import Stage1.AntsLexer
+import Stage1.AntsParser
+import Stage1.AntsCompiler
+import Stage1.AntsPrettyPrinter
+
+import Stage2.Base (AssemblerException(eLine))
+import Stage2.Assembler (assemble, validate)
+import Stage2.Parse (parseAssembler)
+import Stage2.PrettyPrint (Ant(..))
 
 import IDE.WXExt
+
+
 #ifdef CABAL_MODULE
 import Paths_afp_ants (version)
 #else
@@ -86,11 +99,37 @@ antsUI     = do
               on (menu compile) := compileAnt False eds,
               on (menu export)  := compileAnt True eds]
 
-compileAnt :: Bool -> Editors -> IO ()
-compileAnt = undefined
+--AssemblerException
 
-clear :: Editors -> IO ()
-clear e = mapM_ (flip (setText e) "") [asl, afa, ant]
+compileAnt :: Bool -> Editors -> IO ()
+compileAnt False eds = do
+    x <- getText eds asl
+    let clearOutput = clear eds [afa, ant]
+    withCompilerError clearOutput $ do
+        let y = asl2afa x
+        setText eds afa $ y
+        withAssemblerError $ do
+            let z = afa2ant y
+            setText eds ant $ z
+  where errorMarker = 0
+        withCompilerError r m = catch m (\e -> r >> compilerError e)
+        withAssemblerError m = catch m assemblerError
+        compilerError :: SomeException -> IO ()
+        compilerError e = errorDialog (top eds) "Compilerfout" (show e)
+        assemblerError :: AssemblerException -> IO ()
+        assemblerError e = do let line = eLine e - 1
+                                  ed = afa eds
+                              styledTextCtrlGotoLine ed line
+                              styledTextCtrlMarkerAdd ed line errorMarker
+                              clear eds [ant]
+                              errorDialog (top eds) "Assemblerfout" (show e)
+                              focusOn ed
+
+-- TODO: case for True
+
+clear :: Editors -> [Editors -> Editor] -> IO ()
+clear es s = mapM_ (\s -> setText es s "" >>
+                          styledTextCtrlMarkerDeleteAll (s es) 0) s
 
 setText :: Editors -> (Editors -> Editor) -> String -> IO ()
 setText eds sel = styledTextCtrlSetText (sel eds)
@@ -111,7 +150,7 @@ openASL eds = do
     case f of
       Nothing -> return ()
       Just f -> do
-        clear eds
+        clear eds [afa, ant, asl]
         input <- readFile f
         setCurrentFile eds f
         setText eds asl input
@@ -139,8 +178,10 @@ codeEditor p prop = do
     ed <- styledTextCtrlEx p (wxHSCROLL .|. wxTE_MULTILINE) prop
     styledTextCtrlSetMarginType ed 0 wxSTC_MARGIN_TEXT
     styledTextCtrlSetMarginWidth ed 0 45
-    styledTextCtrlSetMarginWidth ed 1 0
+    styledTextCtrlSetMarginType ed 1 wxSTC_MARGIN_SYMBOL
+    styledTextCtrlSetMarginWidth ed 1 10
     styledTextCtrlSetMarginWidth ed 2 0
+    styledTextCtrlMarkerDefine ed 0 wxSTC_MARK_CIRCLE red red
     styledTextCtrlStyleSetSpec ed wxSTC_STYLE_LINENUMBER $ "size:8,face:" ++ fixedFont
     styledTextCtrlStyleSetSpec ed wxSTC_STYLE_DEFAULT $ "size:10,face:" ++ fixedFont
     styledTextCtrlSetCaretLineBackground ed (rgb 240 240 240)
@@ -199,4 +240,13 @@ updateLabels c n (STCUpdateUI) = do
     f <- styledTextCtrlGetFirstVisibleLine c
     mapM_ (\l -> styledTextCtrlMarginSetText c l (show (l + n))) [f..f+t]
 updateLabels _ _ _ = return ()
+
+asl2afa :: String -> String
+asl2afa = prettyPrintAfa . compileAnts . parseAntsTokens . lexAntsString
+
+afa2ant :: String -> String
+afa2ant s =
+    case validate $ parseAssembler s of
+      Left e -> throw e
+      Right a -> show . Ant . assemble $ a
 

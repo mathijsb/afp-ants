@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Stage2.Base (
     -- * Assembler for Ambiants
     
@@ -7,10 +9,15 @@ module Stage2.Base (
     AInstruction(..),
     ADest(..),
     Assembler(..),
-    Label
+    Label,
+    AssemblerException(..)
 ) where
 
 import Control.DeepSeq (NFData(..))
+import Data.IntMap (IntMap)
+import Control.Exception
+import Control.Monad.Error
+import Data.Typeable
 
 import Common.Simulator (SenseDir, LeftOrRight, Condition(Marker), MarkerNumber)
 
@@ -96,8 +103,30 @@ type Label = String
 data ADest = ALabel Label | ARelative Int
   deriving (Show, Eq)
 
-newtype Assembler = Assembler { aInstrs :: [([Label], AInstruction)] }
+data Assembler = Assembler { aInstrs :: [([Label], AInstruction)],
+                             aLineMap :: Maybe (IntMap Int) }
 
+
+data AssemblerException = ParseException {
+                            eLine :: Int,
+                            eMsg :: String,
+                            eNear :: String,
+                            ePInstr :: String }
+                        | ValidationException {
+                            eLine :: Int,
+                            eMsg :: String }
+  deriving (Typeable)
+
+instance Show AssemblerException where
+  show (ParseException n msg near instr) = 
+    let near' = if null near then instr else near in
+    "Parse error at line " ++ show n ++ ": " 
+       ++ msg ++ " near `" ++ near' ++ "'."
+  show (ValidationException n m) = 
+    "Assembler validation failed: " ++ m
+
+instance Exception AssemblerException
+instance Error AssemblerException
 
 instance NFData AInstruction where
   rnf i = case i of
@@ -117,7 +146,7 @@ instance NFData Condition where
   rnf c          = c `seq` ()
 
 instance NFData Assembler where
-  rnf (Assembler a) = rnf a
+  rnf (Assembler a l) = rnf (a, l)
 
 instance NFData ADest where
   rnf (ALabel l)    = rnf l

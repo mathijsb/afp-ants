@@ -4,7 +4,8 @@ module Stage2.Assembler (
     assemble,
     assembleWithInfo,
     ValidAssembler(assembler),
-    validate
+    validate,
+    unsafeMarkValid
 ) where
 
 import Data.HashMap.Lazy (HashMap)
@@ -21,7 +22,8 @@ import Data.List
 import Control.Monad.Error (MonadError, throwError, unless)
 import Control.DeepSeq (NFData(..))
 
-import Stage2.Base (AInstruction(..), ADest(..), Assembler(..), Label)
+import Stage2.Base (AInstruction(..), ADest(..), Assembler(..), Label,
+                    AssemblerException(ValidationException))
 import Stage2.PrettyPrint (instructionToString)
 
 import Common.Simulator (Instruction(..))
@@ -33,19 +35,26 @@ type GotoMap = IMS.IntMap Int
 type InOutMap = IM.IntMap Int
 type Labels = [Label]
 
-type Validator = Assembler -> Either String ()
+type Validator = Assembler -> Either AssemblerException ()
+
+-- | Wrapper for validated assembler code.
 data ValidAssembler = Valid { assembler :: Assembler }
 
 instance NFData ValidAssembler where
   rnf (Valid a) = rnf a
 
+-- | Assembles the validated assembler program, yielding a native Ant program.
 assemble :: ValidAssembler -> [Instruction]
 assemble = snd . assembleWithInfo
 
+-- | Creates a mapping of labels to their corresponding input instruction
+--  numbers for the given assembler program.
 aLabels :: Assembler -> HashMap Label InputInstr
 aLabels = HM.fromList . concatMap extractLabels . zip [1..] . map fst . aInstrs
   where extractLabels (n, ls) = zip ls $ repeat n
 
+-- | Creates a mapping of input instruction numbers to assembler instructions
+-- for the given assembler program.
 aLines :: Assembler -> Array InputInstr AInstruction
 aLines as = let ass = aInstrs as
             in A.array (1, length ass) . zip [1..] . map snd $ ass
@@ -73,13 +82,25 @@ aGotoMap as = simplify . IMS.fromList . mapMaybe edge $ A.assocs lines
 
 -- | Assembler-specific 'throwError' function piggy-backed on 'validationError',
 -- which provides a simple means to display errors related to an instruction.
-validationInstrError :: MonadError String m => String -> Assembler -> InputInstr -> m a
-validationInstrError m as n = validationError $ m ++ ", at instruction " ++
-  show n ++ ": " ++ instructionToString (aLines as A.! n)
+validationInstrError :: MonadError AssemblerException m => String -> Assembler
+                     -> InputInstr -> m a
+validationInstrError m as n = validationError (instrLineNumber as n) $
+  m ++ ", at instruction " ++ show n ++ ": " ++
+  instructionToString (aLines as A.! n)
 
 -- | Assembler-specific 'throwError' function.
-validationError :: MonadError String m => String -> m a
-validationError m = throwError $ "Assembler validation failed: " ++ m
+validationError :: MonadError AssemblerException m => Int -> String -> m a
+validationError n m = throwError $ ValidationException n m
+
+-- | Returns the line number (1-based) of the given instruction number in the
+-- input, or 0 if unknown.
+instrLineNumber :: Assembler -> InputInstr -> Int
+instrLineNumber as n =
+    case aLineMap as of
+      Just m -> case IM.lookup n m of
+                  Just i  -> i
+                  Nothing -> 0
+      Nothing -> 0
 
 -- | Gives the possible (relative) destinations for the continuation of the 
 -- program for the given instruction.
@@ -128,19 +149,34 @@ validateCycleFree as = unless (null cyclics) $
 -- | Checks if there are no duplicate labels in the program.
 validateUniqueLabels :: Validator
 validateUniqueLabels as = unless (null duplicates) $
-    validationError $ "duplicate label: " ++ (intercalate ", " duplicates)
+    validationError n $ "duplicate label: " ++ (intercalate ", " duplicates)
   where duplicates = map head . filter (\x -> length x > 1) . group . sort
-                   . concatMap fst $ aInstrs as
+                   . concatMap fst $ instrs
+        instrs = aInstrs as
+        n = instrLineNumber as . fst . head
+          . filter (any (`elem` duplicates) . snd) . zip [1..] $ map fst instrs
 
+-- | Steps to validate assembler programs such that when all steps succeed,
+-- the assembler will successfully assemble the program.
 validators :: [Validator]
 validators = [validateUniqueLabels,
               validateCycleFree,
               validateDestinations]
 
-validate :: Assembler -> Either String ValidAssembler
+-- | Validates the given assembler code for properties assumed by the assembler,
+-- such as being free of non-productive loops that cannot be translated.
+validate :: Assembler -> Either AssemblerException ValidAssembler
 validate as = do mapM_ ($ as) validators
                  return $ Valid as
 
+-- | Marks arbitrary assembler code as valid. Assembling such code could result
+-- in diverging behaviour, incorrect output or crashes. Caveat emptor. 
+unsafeMarkValid :: Assembler -> ValidAssembler
+unsafeMarkValid = Valid
+
+-- | Assembles the given assembler code and outputs the resulting instructions,
+-- as well as a mapping from input instruction numbers (1-based) to output lines
+-- (0-based).
 assembleWithInfo :: ValidAssembler -> (InOutMap, [Instruction])
 assembleWithInfo vas = assemble' IM.empty 0 ins
   where as = assembler vas
@@ -150,6 +186,7 @@ assembleWithInfo vas = assemble' IM.empty 0 ins
         ins = map (\(n, (ls, i)) -> (n, ls, i)) . zip [1..] . aInstrs $ as
 
         -- Mapping of labels to the instruction number they originated from.
+        -- Assumption: there are no duplicate labels.
         lmap = aLabels as
         
         -- Recursively yield assembled instructions and update the input/output
@@ -173,10 +210,18 @@ assembleWithInfo vas = assemble' IM.empty 0 ins
             
           where yield x = is `seq` (m', x : is)
                 recurse d = 
-                  let (m'', is') = assemble' (IM.insert n (m'' IM.! ref d) m) x as
+                  -- We need a fixpoint construction on m'' to find the
+                  -- true destination line of an ADest.
+                  -- Assumption: the assembler code does not contain non-
+                  -- productive loops, or this will diverge.
+                  let (m'', is') =
+                        assemble' (IM.insert n (m'' IM.! ref d) m) x as
                   in (m'', is')
                 (m', is) = assemble' (IM.insert n x m) (x+1) as
+                -- Lookup a destination. Assumption: the given label exists.
                 ref (ALabel l)    = lmap HM.! l
                 ref (ARelative r) = n + r
+                -- Lookup the output line of a destination. Assumption: the
+                -- destination is in bounds.
                 pos x = m' IM.! ref x
                 next = pos (ARelative 1)

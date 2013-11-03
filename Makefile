@@ -55,7 +55,7 @@ clean:
 %/wxcext.o: %/wxcext.cpp
 	g++ $(WX_CXX_FLAGS) -c -Wall -Werror -fpic -o "$@" "$*/wxcext.cpp"
 
-editor: $(IDE_DEPS)
+editor: $(IDE_DEPS) $(STAGE1_DEPS) $(STAGE2_DEPS)
 	ghc $(GHC_FLAGS) -main-is IDE.Main -optl $(IDE_PATH)/libwxcext.a -optl-lstdc++ $(IDE_PATH)/Main.hs -o $@
 
 sim: $(COMMON_DEPS) $(SIM_DEPS)

@@ -2,7 +2,8 @@ module Stage2.PrettyPrint (
     assemblerToString,
     instructionToString,
     destToString,
-    instructionToString2
+    Ant(..),
+    antInstructionToString
 ) where
 
 import Data.Char (toUpper)
@@ -30,11 +31,16 @@ instructionToString i = map toUpper . unwords $ case i of
   AJump z              -> ["JUMP", show z]
   ANop                 -> ["NOP"]
 
-instructionToString2 :: Instruction -> String
-instructionToString2 (Turn IsLeft state) = "Turn Left " ++ show state
-instructionToString2 (Turn IsRight state) = "Turn Right " ++ show state
-instructionToString2 (Sense dir s1 s2 c) = "Sense " ++ show dir ++ " " ++ show s1 ++ " " ++ show s2 ++ " " ++ condToString c
-instructionToString2 instruction = show instruction
+newtype Ant = Ant [Instruction]
+
+instance Show Ant where
+  show (Ant is) = unlines $ map antInstructionToString is
+
+antInstructionToString :: Instruction -> String
+antInstructionToString (Turn IsLeft state) = "Turn Left " ++ show state
+antInstructionToString (Turn IsRight state) = "Turn Right " ++ show state
+antInstructionToString (Sense dir s1 s2 c) = "Sense " ++ show dir ++ " " ++ show s1 ++ " " ++ show s2 ++ " " ++ condToString c
+antInstructionToString instruction = show instruction
 
 condToString (Marker num) = "Marker " ++ show num
 condToString c = show c

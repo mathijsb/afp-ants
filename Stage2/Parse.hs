@@ -9,49 +9,53 @@ import Data.Char (toUpper, isDigit)
 import Data.Monoid (mempty)
 import Data.Map (Map)
 import qualified Data.Map as M
+import Data.IntMap (IntMap)
+import qualified Data.IntMap as IM
+import Control.Exception (throw)
+import Debug.Trace
 
 import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..),
                          MarkerNumber)
-
 import Stage2.Base
 
 type Throw = forall b. String -> String -> b
 type Yield b = AInstruction -> b
 type InstrParser = Throw
-                  -> Yield [([String], AInstruction)]
+                  -> Yield ([Int], [([String], AInstruction)])
                   -> [String]
-                  -> [([String], AInstruction)]
+                  -> ([Int], [([String], AInstruction)])
 type Reader a b = Throw -> a -> b
 
+traceId :: Show a => a -> a
+traceId x = traceShow x x
 
 parseAssembler :: String -> Assembler
-parseAssembler = Assembler
-               . foldr parse []
+parseAssembler = (\(m, a) -> Assembler a $ Just $ IM.fromList $ zip [1..] m)
+               . traceId
+               . foldr parse ([], [])
                . zip [1..]               -- Add line numbers for reference
                . map (takeWhile (/=';')) -- Remove comments
                . lines                   -- Newlines separate instructions
                . map toUpper             -- Case insensitivity
-  where parse :: (Int, String) -> [([String], AInstruction)]
-              -> [([String], AInstruction)]
-        parse (n, instr) instrs = 
+  where parse :: (Int, String) -> ([Int], [([String], AInstruction)])
+              -> ([Int], [([String], AInstruction)])
+        parse (n, instr) (m, instrs) = 
           case words instr of
             (w : ws) ->
               case M.lookup w instrMap of
-                Just f -> f throw yield ws
-                _      -> parseLabel throw put w
+                Just f -> f throw' yield ws
+                _      -> parseLabel throw' put w
 
-            [] -> instrs
+            [] -> (m, instrs)
 
           where
             -- Found instruction, append and continue parsing.
-            yield i = i `seq` (([], i) : instrs)
+            yield i = i `seq` (n : m, (([], i) : instrs))
             put l = l `seq` case instrs of
-                              (ll, ii):is -> ((l : ll, ii) : is)
+                              (ll, ii):is -> (m, ((l : ll, ii) : is))
             -- Throw an error with a more or less helpful error message.
-            throw near msg =
-              let near' = if null near then instr else near
-              in error $ "Parse error at line " ++ show n ++ ": " 
-                             ++ msg ++ " near `" ++ near' ++ "'."
+            throw' near msg =
+              throw $ ParseException n msg near instr
 
 -- #########################################################################
 --                            Parameter readers

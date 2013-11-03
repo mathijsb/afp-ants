@@ -29,8 +29,8 @@ foreign import ccall "wxStyledTextCtrl_MarginSetText" wxStyledTextCtrl_MarginSet
 
 -- | usage: (@findFixedFontFace@).
 findFixedFontFace :: IO (String)
-findFixedFontFace 
-  = withManagedStringResult $
+findFixedFontFace = return "monospace"
+{-  = withManagedStringResult $
     find_fixed_font_face 
-foreign import ccall "find_fixed_font_face" find_fixed_font_face :: IO (Ptr (TWxString ()))
+foreign import ccall "find_fixed_font_face" find_fixed_font_face :: IO (Ptr (TWxString ()))-}
 

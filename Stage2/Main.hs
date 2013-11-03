@@ -12,7 +12,7 @@ import Data.List (intersperse)
 
 import Stage2.Assembler (assemble, assembleWithInfo, validate)
 import Stage2.Parse (parseAssembler)
-import Stage2.PrettyPrint (instructionToString2)
+import Stage2.PrettyPrint (antInstructionToString)
 
 import Control.DeepSeq (force)
 
@@ -63,9 +63,9 @@ replaceOrAddExtension match repl file =
        then addExtension base repl
        else addExtension file repl
 
-failOnError :: Monad m => Either String a -> m a
-failOnError (Left e) = fail e
-failOnError (Right r) = return r
+throwOnError :: Monad m => Either String a -> IO a
+throwOnError (Left e) = error e
+throwOnError (Right r) = return r
 
 -- | Assembles the input file, placing the contents in the output file.
 assembleFile :: FilePath -> FilePath -> IO ()
@@ -74,7 +74,7 @@ assembleFile ifile ofile = do
     contents <- hGetContents inputHandle
     outputHandle <- openFile ofile WriteMode
     code <- failOnError . validate . force $ parseAssembler contents
-    mapM_ (hPutStrLn outputHandle . instructionToString2) $ assemble code
+    mapM_ (hPutStrLn outputHandle . antInstructionToString) $ assemble code
     hClose inputHandle
     hClose outputHandle
 
