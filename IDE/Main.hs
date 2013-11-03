@@ -84,8 +84,9 @@ antsUI     = do
         
         current <- newIORef Nothing
         asl <- aslEditor p []
-        afa <- afaEditor bottom []
-        ant <- antEditor bottom []
+        styledTextCtrlSetText asl defaultProgram
+        afa <- afaViewer bottom []
+        ant <- antViewer bottom []
          
         let eds = ED { asl = asl, afa = afa, ant = ant, file = current, top = f }
         
@@ -149,7 +150,10 @@ clear es s = mapM_ (\s -> setText es s "" >>
                           styledTextCtrlMarkerDeleteAll (s es) 0) s
 
 setText :: Editors -> (Editors -> Editor) -> String -> IO ()
-setText eds sel = styledTextCtrlSetText (sel eds)
+setText eds sel s = do 
+    styledTextCtrlSetReadOnly (sel eds) False
+    styledTextCtrlSetText (sel eds) s
+    styledTextCtrlSetReadOnly (sel eds) True
 
 getText :: Editors -> (Editors -> Editor) -> IO String
 getText eds sel = styledTextCtrlGetText (sel eds)
@@ -205,7 +209,6 @@ codeEditor p prop = do
     styledTextCtrlStyleSetSpec ed wxSTC_STYLE_LINENUMBER $ "size:8,face:" ++ fixedFont
     styledTextCtrlStyleSetSpec ed wxSTC_STYLE_DEFAULT $ "size:10,face:" ++ fixedFont
     styledTextCtrlSetCaretLineBackground ed (rgb 240 240 240)
-    styledTextCtrlSetCaretLineVisible ed True
     styledTextCtrlSetTabWidth ed 4
     styledTextCtrlSetUseTabs ed False
     return ed
@@ -224,9 +227,10 @@ aslEditor p prop = do
     styledTextCtrlSetKeyWords ed 0 aslInstr
     styledTextCtrlSetKeyWords ed 1 aslConds
     set ed [on stcEvent := updateLabels ed 1]
+    styledTextCtrlSetCaretLineVisible ed True
     return ed
 
-afaEditor p prop = do
+afaViewer p prop = do
     ed <- codeEditor p prop
     styledTextCtrlStyleClearAll ed
     styledTextCtrlSetLexer ed wxSTC_LEX_CPP 
@@ -238,9 +242,11 @@ afaEditor p prop = do
     styledTextCtrlSetKeyWords ed 0 afaInstr
     styledTextCtrlSetKeyWords ed 1 afaConds
     set ed [on stcEvent := updateLabels ed 1]
+    styledTextCtrlSetReadOnly ed True
+    styledTextCtrlSetCaretWidth ed 0
     return ed
 
-antEditor p prop = do
+antViewer p prop = do
     ed <- codeEditor p prop
     styledTextCtrlStyleClearAll ed
     styledTextCtrlSetLexer ed wxSTC_LEX_CPP 
@@ -251,6 +257,8 @@ antEditor p prop = do
     styledTextCtrlSetKeyWords ed 0 antInstr
     styledTextCtrlSetKeyWords ed 1 antConds
     set ed [on stcEvent := updateLabels ed 0]
+    styledTextCtrlSetReadOnly ed True
+    styledTextCtrlSetCaretWidth ed 0
     return ed
 
 updateLabels :: StyledTextCtrl a -> Int -> EventSTC -> IO ()
@@ -278,3 +286,9 @@ afaConds = map toUpper antConds
 aslInstr = "function if else while break times && || ! Nop " ++ antInstr
 aslConds = "true " ++ antConds
 
+defaultProgram :: String
+defaultProgram = unlines $ [
+    "function main()",
+    "{",
+    "    Nop",
+    "}"]
