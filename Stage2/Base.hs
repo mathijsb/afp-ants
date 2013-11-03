@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
+-- | Language and datatype definitions for the /Assembler for Ambiants/ (AFA) Assembler.
+
 module Stage2.Base (
     -- * Assembler for Ambiants
     
@@ -27,7 +29,8 @@ Simple linearized Ant assembler language. All instruction implicitly continue to
 the next line, except for when they fail (if applicable), where they continue to
 the alternative destination given.
 
-All instructions take 1 round to execute, except for MOVE (which takes 15 (or 16? TODO)) and the GOTO\/JUMP pseudo-instructions (which take 0).
+All instructions take 1 round to execute, except for MOVE (which takes 16) and
+the GOTO\/JUMP pseudo-instructions (which take 0).
 
 Instructions and all labels are considered case-insensitive.
 
@@ -83,6 +86,7 @@ Instructions and all labels are considered case-insensitive.
 
 -}
 
+-- | Trivial instruction datatype for the assembler.
 data AInstruction 
    = ASense SenseDir Condition ADest
    | AMark MarkerNumber
@@ -100,13 +104,24 @@ data AInstruction
 
 type Label = String
 
-data ADest = ALabel Label | ARelative Int
+-- | Destination in the assembler code.
+data ADest = ALabel Label  -- ^ Destination labeled by a label.
+           | ARelative Int -- ^ Destination relative to the current position
+                           -- (e.g. @ARelative 0@ equals the current position).
   deriving (Show, Eq)
 
+-- | Wrapper for assembler code, which might include a mapping from instruction
+-- number to input line number for debugging purposes.
 data Assembler = Assembler { aInstrs :: [([Label], AInstruction)],
                              aLineMap :: Maybe (IntMap Int) }
 
-
+-- | Exceptions that can be thrown by the parser or validator. They always
+-- mention a line number, which corresponds to the (1-based) input line
+-- of the parser or is 0 when unknown (which might occur if there is no
+-- line-to-instruction mapping available).
+--
+-- Note that the assembler itself will never throw an exception; it will never
+-- fail if its input passes the validation.
 data AssemblerException = ParseException {
                             eLine :: Int,
                             eMsg :: String,
@@ -124,7 +139,6 @@ instance Show AssemblerException where
        ++ msg ++ " near `" ++ near' ++ "'."
   show (ValidationException n m) = 
     "Assembler validation failed: " ++ m
-
 instance Exception AssemblerException
 instance Error AssemblerException
 

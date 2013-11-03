@@ -1,5 +1,13 @@
 {-# LANGUAGE RankNTypes, ImpredicativeTypes #-}
 
+-- | Parser for the /Assembler for Ambiants/ (AFA) language.
+--
+-- See module "Stage2.Base" for a specification of the AFA language.
+--
+-- The parser is a rather simple hand-written parser. @alex@ and @happy@ are
+-- a bit overkill in this situation: we are dealing with a simple line-based
+-- language.
+
 module Stage2.Parse (
     parseAssembler,
     isInteger
@@ -125,11 +133,13 @@ readLabel throw s =
     then throw s "invalid character in label"
     else s
 
--- /safe/ version of 'head', returning the monoid identity on
+-- | /safe/ version of 'head', returning the monoid identity on
 -- empty list.
 sHead [] = mempty
 sHead xx = head xx
 
+-- | Checks whether the given string is representable as an integer, i.e. it
+-- consists only of digits that may optionally be preceded by one minus.
 isInteger :: String -> Bool
 isInteger s = let (h : t) = s
               in not (null s) && all isDigit t && (h == '-' || isDigit h)

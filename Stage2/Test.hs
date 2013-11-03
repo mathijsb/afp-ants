@@ -1,56 +1,73 @@
+-- | Small collection of test cases for initial validation of the assembler
+-- validator and assembler output.
+--
+-- All testcases are assumed to be at least parseable.
+
 module Stage2.Test (
-    Testcase,
     testcases,
-    validProgram,
-    testLoop1,
-    testLoop2,
-    testLoop3,
-    testLoop4,
-    testLoop5,
-    testUniqueLabels
+    test,
+    allTestsPass
 ) where
 
-import Stage2.Base (Assembler(..), AInstruction(..), ADest(..))
-import Stage2.Assembler (assemble)
-import Common.Simulator (Instruction(..), LeftOrRight(..))
+import Data.Maybe
+
+import Stage2.PrettyPrint (Ant(..))
+import Stage2.Assembler (assemble, validate)
+import Stage2.Parse (parseAssembler)
 
 -- | Assembler program and expected result.
-type Testcase = (String, Assembler, Maybe [Instruction])
+type Testcase = (String, Maybe String)
 
-validProgram :: Assembler
-validProgram = Assembler [
-    (["start"], ATurn IsLeft),
-    ([]       , ATurn IsLeft),
-    ([]       , AMove (ARelative 6)),
-    ([]       , AGoto "start"),
-    (["error"], ANop),
-    ([]       , AGoto "error"),
-    (["error3"], AGoto "error2"),
-    (["error2"], AGoto "error"),
-    (["error4"], AGoto "error3")
-  ]
+-- | Self-test indicator: 'True' if all testcases in 'testcases' pass.
+allTestsPass :: Bool
+allTestsPass = all test testcases
 
+-- | Test a testcase, 'True' if the testcase succeeds.
+test :: Testcase -> Bool
+test (i, o) = let a = parseAssembler i in
+              case validate a of
+                Left e -> isNothing o
+                Right v -> isJust o && let is = assemble v in
+                                       (== fromJust o) . show $ Ant is
 
-testLoop1 :: Assembler
-testLoop1 = Assembler [(["start"], ANop), (["end1"], AGoto "end2"), (["end2"], AGoto "end1")]
-
-testLoop2 :: Assembler
-testLoop2 = Assembler [(["start"], ANop), (["end1"], AGoto "end2"), (["end2"], AGoto "end3"), (["end3"], AGoto "end2")]
-
-testLoop3 :: Assembler
-testLoop3 = Assembler [(["start"], ANop), (["end1"], AGoto "end2"), (["end2"], AJump (-1))]
-
-testLoop4 :: Assembler
-testLoop4 = Assembler [(["start"], ANop), (["end1"], AJump 1), (["end2"], AGoto "end1")]
-
-testLoop5 :: Assembler
-testLoop5 = Assembler [([], ANop), ([], AJump 1), ([], AJump (-1))]
-
-
--- TODO: check for uniqueness of labels. This test fails right now (by not throwing an error).
-testUniqueLabels :: Assembler
-testUniqueLabels = Assembler [(["start"], ANop), (["start"], ANop)]
-
--- TODO: collection of testcases.
+-- | Collection of testcases for the assembler and validator.
 testcases :: [Testcase]
-testcases = undefined
+testcases = [validProgram, testLoop1, testLoop2, testLoop3, testLoop4, testLoop5,
+             testUniqueLabels]
+
+invalid :: String -> Testcase
+invalid s = (s, Nothing)
+
+valid :: String -> String -> Testcase
+valid i o = (i, Just o)
+
+-- ================
+-- Succeeding tests
+-- ================
+
+validProgram :: Testcase
+validProgram = valid "start:\n    TURN LEFT\n    TURN LEFT\n    MOVE OR JUMP 6\n    GOTO START\nerror:\n    NOP\n    GOTO ERROR\nerror3:\n    GOTO ERROR2\nerror2:\n    GOTO ERROR\nerror4:\n    GOTO ERROR3\n"
+                     "Turn Left 1\nTurn Left 2\nMove 0 3\nFlip 1 3 3\n"
+
+-- ==========================
+-- Failing tests (on purpose)
+-- ==========================
+
+testLoop1 :: Testcase
+testLoop1 = invalid "start:\n    NOP\nend1:\n    GOTO END2\nend2:\n    GOTO END1\n"
+
+testLoop2 :: Testcase
+testLoop2 = invalid "start:\n    NOP\nend1:\n    GOTO END2\nend2:\n    GOTO END3\nend3:\n    GOTO END2\n"
+
+testLoop3 :: Testcase
+testLoop3 = invalid "start:\n    NOP\nend1:\n    GOTO END2\nend2:\n    JUMP -1\n"
+
+testLoop4 :: Testcase
+testLoop4 = invalid "start:\n    NOP\nend1:\n    JUMP 1\nend2:\n    GOTO END1\n"
+
+testLoop5 :: Testcase
+testLoop5 = invalid "    NOP\n    JUMP 1\n    JUMP -1\n"
+
+testUniqueLabels :: Testcase
+testUniqueLabels = invalid "start:\n    NOP\nstart:\n    NOP\n"
+

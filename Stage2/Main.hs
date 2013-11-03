@@ -1,18 +1,21 @@
+-- | Main program for the /Assembler for Ambiants/ (AFA) assembler.
+
 module Stage2.Main (
     main,
     assembleFile
 ) where
 
 import System.IO (putStrLn, openFile, hGetContents, hPutStr, hClose,
-                  hPutStrLn, IOMode(ReadMode, WriteMode))
+                  hPrint, IOMode(ReadMode, WriteMode))
 import System.Environment (getArgs, getProgName)
 import System.FilePath.Posix (addExtension, splitExtension)
 import System.Exit (exitFailure)
 import Data.List (intersperse)
+import Control.Exception (throwIO, Exception)
 
 import Stage2.Assembler (assemble, assembleWithInfo, validate)
 import Stage2.Parse (parseAssembler)
-import Stage2.PrettyPrint (antInstructionToString)
+import Stage2.PrettyPrint (Ant(..))
 
 import Control.DeepSeq (force)
 
@@ -33,6 +36,8 @@ usage i = do putStr "Usage: "
              putStrLn (showInvocation (Literal progName : i))
              exitFailure
 
+-- | Returns human-readable information on how to specify arguments based on the
+-- given invocation information.
 showInvocation :: Invocation -> String
 showInvocation = concat . intersperse " " . map showArgument
   where showArgument a =
@@ -45,11 +50,11 @@ showInvocation = concat . intersperse " " . map showArgument
             Alternative a'   -> concat . intersperse "|" $ map showArgument a'
 
 type Invocation = [Argument]
-data Argument = Optional Argument
-              | Alternative [Argument]
-              | Literal String
-              | Value String
-              | Flag String (Maybe Argument)
+data Argument = Optional Argument           -- ^ Optional argument
+              | Alternative [Argument]      -- ^ Choice between altenatives
+              | Literal String              -- ^ Literal value that must be present
+              | Value String                -- ^ Named (string) argument
+              | Flag String (Maybe Argument)-- ^ Flag that may have a value
 
 -- | Replaces the extension in the path on an extension match, otherwise appends
 -- the filename with the given extension.
@@ -63,8 +68,10 @@ replaceOrAddExtension match repl file =
        then addExtension base repl
        else addExtension file repl
 
-throwOnError :: Monad m => Either String a -> IO a
-throwOnError (Left e) = error e
+-- | Throws an exception in case the Either value passed is 'Left', otherwise
+-- returns the value in 'Right'.
+throwOnError :: Exception e => Either e a -> IO a
+throwOnError (Left e) = throwIO e
 throwOnError (Right r) = return r
 
 -- | Assembles the input file, placing the contents in the output file.
@@ -73,8 +80,8 @@ assembleFile ifile ofile = do
     inputHandle <- openFile ifile ReadMode
     contents <- hGetContents inputHandle
     outputHandle <- openFile ofile WriteMode
-    code <- failOnError . validate . force $ parseAssembler contents
-    mapM_ (hPutStrLn outputHandle . antInstructionToString) $ assemble code
+    code <- throwOnError . validate . force $ parseAssembler contents
+    hPrint outputHandle . Ant $ assemble code
     hClose inputHandle
     hClose outputHandle
 
