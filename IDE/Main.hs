@@ -10,6 +10,7 @@ import Data.IORef
 import System.FilePath.Posix
 import Data.Version
 import Control.Exception
+import Control.Monad
 import Data.Char (toUpper)
 
 import Stage1.AntsLexer
@@ -97,10 +98,10 @@ antsUI     = do
               on (menu open)    := openASL eds,
               on (menu save)    := saveASL eds False,
               on (menu saveAs)  := saveASL eds True,
-              on (menu compile) := compileAnt False eds,
-              on (menu export)  := compileAnt True eds]
+              on (menu compile) := void $ compileAnt False eds,
+              on (menu export)  := void $ compileAnt True eds]
 
-compileAnt :: Bool -> Editors -> IO ()
+compileAnt :: Bool -> Editors -> IO (Maybe String)
 compileAnt False eds = do
     x <- getText eds asl
     let clearOutput = clear eds [afa, ant]
@@ -110,12 +111,14 @@ compileAnt False eds = do
         withAssemblerError $ do
             let z = afa2ant y
             setText eds ant $ z
+            return $ Just z
   where errorMarker = 0
         withCompilerError r m = catch m (\e -> r >> compilerError e)
         withAssemblerError m = catch m assemblerError
-        compilerError :: SomeException -> IO ()
-        compilerError e = errorDialog (top eds) "Compilerfout" (show e)
-        assemblerError :: AssemblerException -> IO ()
+        compilerError :: SomeException -> IO (Maybe String)
+        compilerError e = do errorDialog (top eds) "Compilerfout" (show e)
+                             return Nothing
+        assemblerError :: AssemblerException -> IO (Maybe String)
         assemblerError e = do let line = eLine e - 1
                                   ed = afa eds
                               styledTextCtrlGotoLine ed line
@@ -123,8 +126,23 @@ compileAnt False eds = do
                               clear eds [ant]
                               errorDialog (top eds) "Assemblerfout" (show e)
                               focusOn ed
+                              return Nothing
+compileAnt True eds = do
+    s <- compileAnt False eds
+    case s of
+      Nothing -> return Nothing
+      Just s -> do
+        f <- fileSaveDialog (asl eds) True False "Ant opslaan als..." 
+             [("Ant-bestanden", ["*.ant"])] "" ""
+        case f of
+          Nothing -> return Nothing
+          Just f -> do
+            flip catch (onIOException eds $ return Nothing) $ do
+              writeFile f s
+              return $ Just s
 
--- TODO: case for True
+onIOException :: Editors -> IO a -> IOException -> IO a
+onIOException eds m e = errorDialog (top eds) "Invoer/uitvoerfout" (show e) >> m
 
 clear :: Editors -> [Editors -> Editor] -> IO ()
 clear es s = mapM_ (\s -> setText es s "" >>
@@ -149,10 +167,11 @@ openASL eds = do
     case f of
       Nothing -> return ()
       Just f -> do
-        clear eds [afa, ant, asl]
-        input <- readFile f
-        setCurrentFile eds f
-        setText eds asl input
+        flip catch (onIOException eds $ return ()) $ do
+            clear eds [afa, ant, asl]
+            input <- readFile f
+            setCurrentFile eds f
+            setText eds asl input
 
 saveASL :: Editors -> Bool -> IO ()
 saveASL eds as | as = do
@@ -161,16 +180,18 @@ saveASL eds as | as = do
   case f of
       Nothing -> return ()
       Just f -> do
-        output <- getText eds asl
-        writeFile f output
-        setCurrentFile eds f
+        flip catch (onIOException eds $ return ()) $ do
+            output <- getText eds asl
+            writeFile f output
+            setCurrentFile eds f
                | True = do
   f <- readIORef (file eds)
   case f of
       Nothing -> saveASL eds True
       Just f -> do
-        output <- getText eds asl
-        writeFile f output
+        flip catch (onIOException eds $ return ()) $ do
+            output <- getText eds asl
+            writeFile f output
 
 codeEditor p prop = do
     fixedFont <- findFixedFontFace
