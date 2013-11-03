@@ -3,71 +3,79 @@
 
 function main() { 
 	
+	--Leave the anthill
 	while(Sense Here Home) { turnMoveCell() }
-	while(!Sense Here Home) {explore()}
-	while(!Sense Here Home) {exploreWithoutMarking()}
+	
+	--Explore the world, while marking the way home
+	while(!Sense Here Food) {explore()}
+	
+	--Explore further by random walking, until food or home is found
+	while(!Sense Here Food && !Sense Here Home){moveCell()}
+	
+	--We have have arrived either back where we started from, or at food
+	--If we found food, we collect, else we end, and start over again
+	if(Sense Here Food){collect()}
 	
 	}
 
 function explore() {
 
+	--Place markers in the order 0,1,2.
+	--Have we arrived at food? Then we stop
+	--Can't we move forward? Then we stop 
+
 	if(noMarkHere()) {Mark 0}
-	if(Sense Ahead Food && !Sense Ahead Home && Move) { if(noMarkHere()) {Mark 1}
-														collect() } 
-	else {	if(Move){	if(noMarkHere()) {Mark 1}
-						if(Sense Ahead Food && !Sense Ahead Home && Move) { if(noMarkHere()) {Mark 2}
-																			collect() }
-						else {	if(Move){	if(noMarkHere()) {Mark 2}
-											if(Sense Ahead Food && !Sense Ahead Home && Move) {	if(noMarkHere()) {Mark 0}
-																								collect() }
-											else{ 	if(Move){}
-													else {break}
-													
-												}
-										}
-								else {break}
-							}
-						}
+	if(Move) { 	
+		if(noMarkHere()) {Mark 1}
+		if(Sense Here Food) {break}
+		if(Move) {  if(noMarkHere()) {Mark 2}
+			if(Sense Here Food) {break}
+			if(Move){ }
 			else {break}
 			}
+		else {break}
+		}
+	else {break}
 				
-}
-
-function exploreWithoutMarking() {
-	
-	while(!Sense Here Food && !Sense Here Home){moveCell()}
-	if(Sense Here Food){collect()}
 }
 
 function collect() {
 
+	--We have arrived at food
+	--All we do here is pick it up
 	PickUp
+	
+	--Turn around and search for our anthill with goHome()
 	turnaround()
 	while(!Sense Here Home){goHome()}
+	
+	--Drop the food, and get ready to explore again
 	Drop
 	turnaround()
-	break
 	
 }	
 
 function goHome() {
 
-if(Sense Here Marker(0)){senseALRH(2)}
-else { if(Sense Here Marker(1)){ senseALRH(0)
-							}
+--We sense what marker the ant stands on, if any.
+--If we found a marker, we look around for the previous one, as this will lead us home
+
+if(Sense Here Marker(0)){tryMoveToMarker(2)}
+else { if(Sense Here Marker(1)){ tryMoveToMarker(0)}
 	else { 
-		if(Sense Here Marker(2)){senseALRH(1)}
-	
-		else {
-				moveCell()
+		if(Sense Here Marker(2)){ tryMoveToMarker(1)}
+		else {	moveCell()
+				--If the ant does not stand on a marker, it walks until it does.
 				while(noMarkHere()){moveCell()}
 			}
+		}
 	}
 }
-}
 
-function senseALRH(i) {
+function tryMoveToMarker(i) {
 
+	--this function senses around for a marker and moves to it.
+	
 	if(Sense Ahead Marker(i)||Sense Ahead Home) {moveCell()}
 	else {
 		if(Sense LeftAhead Marker(i)||Sense Ahead Home){Turn Left
