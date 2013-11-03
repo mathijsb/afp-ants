@@ -67,8 +67,8 @@ asc: $(COMMON_DEPS) $(STAGE1_DEPS)
 afa: $(COMMON_DEPS) $(STAGE2_DEPS)
 	ghc $(GHC_FLAGS) -main-is Stage2.Main $(STAGE2_PATH)/Main.hs -o $@
 
-%.afa: ants %.asl
-	./ants "$*.asl" | sed '1,/Compiled/d' > "$*.afa"
+%.afa: asc %.asl
+	./asc "$*.asl" | sed '1,/Compiled/d' > "$*.afa"
 
 %.ant: afa %.afa
 	./afa "$*.afa" && (cat "$*.ant" | wc -l | sed 's/.*/Compiled $@, generated \0 instructions./')
