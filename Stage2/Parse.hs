@@ -12,7 +12,6 @@ import qualified Data.Map as M
 import Data.IntMap (IntMap)
 import qualified Data.IntMap as IM
 import Control.Exception (throw)
-import Debug.Trace
 
 import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..),
                          MarkerNumber)
@@ -26,12 +25,9 @@ type InstrParser = Throw
                   -> ([Int], [([String], AInstruction)])
 type Reader a b = Throw -> a -> b
 
-traceId :: Show a => a -> a
-traceId x = traceShow x x
-
+-- | Parses the input as Assembler, throwing a 'ParseException' on failure.
 parseAssembler :: String -> Assembler
 parseAssembler = (\(m, a) -> Assembler a $ Just $ IM.fromList $ zip [1..] m)
-               . traceId
                . foldr parse ([], [])
                . zip [1..]               -- Add line numbers for reference
                . map (takeWhile (/=';')) -- Remove comments

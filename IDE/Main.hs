@@ -10,6 +10,7 @@ import Data.IORef
 import System.FilePath.Posix
 import Data.Version
 import Control.Exception
+import Data.Char (toUpper)
 
 import Stage1.AntsLexer
 import Stage1.AntsParser
@@ -88,18 +89,16 @@ antsUI     = do
         let eds = ED { asl = asl, afa = afa, ant = ant, file = current, top = f }
         
         set bottom [layout := fill $ row 5 [fill $ widget afa, fill $ widget ant]]
-        set f [layout           := fill $ hsplit p 5 400 (fill $ widget asl) (fill $ widget bottom),
+        set f [layout           := minsize (sz screenW screenH) $ fill $ 
+                 hsplit p 5 400 (fill $ widget asl) (fill $ widget bottom),
               statusBar         := [status],
               menuBar           := [file],
-              size              := sz screenW screenH,
               on (menu quit)    := close f,
               on (menu open)    := openASL eds,
               on (menu save)    := saveASL eds False,
               on (menu saveAs)  := saveASL eds True,
               on (menu compile) := compileAnt False eds,
               on (menu export)  := compileAnt True eds]
-
---AssemblerException
 
 compileAnt :: Bool -> Editors -> IO ()
 compileAnt False eds = do
@@ -191,8 +190,7 @@ codeEditor p prop = do
     return ed
 
 
--- TODO: add more keywords?
--- TODO: This assumes comments are started with // instead of --: maybe we can change the compiler to reflect that.
+-- This assumes comments are started with // instead of --: maybe we can change the compiler to reflect that.
 aslEditor p prop = do
     ed <- codeEditor p prop
     styledTextCtrlStyleClearAll ed
@@ -202,8 +200,8 @@ aslEditor p prop = do
     styledTextCtrlStyleSetForeground ed wxSTC_C_WORD2 (rgb 0 150 0)
     styledTextCtrlStyleSetForeground ed wxSTC_C_COMMENTLINE (rgb 0 0 255)
     styledTextCtrlStyleSetBold ed wxSTC_C_WORD True
-    styledTextCtrlSetKeyWords ed 0 "times function while true if else break Sense Turn Mark PickUp Move Drop Nop Flip"
-    styledTextCtrlSetKeyWords ed 1 "Marker Left Right Ahead LeftAhead RightAhead Here Home"
+    styledTextCtrlSetKeyWords ed 0 aslInstr
+    styledTextCtrlSetKeyWords ed 1 aslConds
     set ed [on stcEvent := updateLabels ed 1]
     return ed
 
@@ -216,8 +214,8 @@ afaEditor p prop = do
     styledTextCtrlStyleSetForeground ed wxSTC_C_WORD2 (rgb 0 150 0)
     styledTextCtrlStyleSetForeground ed wxSTC_C_IDENTIFIER (rgb 150 0 0)
     styledTextCtrlStyleSetBold ed wxSTC_C_WORD True
-    styledTextCtrlSetKeyWords ed 0 "SENSE TURN MARK PICKUP MOVE DROP NOP FLIP OR GOTO JUMP"
-    styledTextCtrlSetKeyWords ed 1 "MARKER LEFT RIGHT AHEAD LEFTAHEAD RIGHTAHEAD HERE HOME"
+    styledTextCtrlSetKeyWords ed 0 afaInstr
+    styledTextCtrlSetKeyWords ed 1 afaConds
     set ed [on stcEvent := updateLabels ed 1]
     return ed
 
@@ -229,8 +227,8 @@ antEditor p prop = do
     styledTextCtrlStyleSetForeground ed wxSTC_C_WORD (rgb 0 0 150)
     styledTextCtrlStyleSetForeground ed wxSTC_C_WORD2 (rgb 0 150 0)
     styledTextCtrlStyleSetBold ed wxSTC_C_WORD True
-    styledTextCtrlSetKeyWords ed 0 "Sense Turn Mark PickUp Move Drop Flip"
-    styledTextCtrlSetKeyWords ed 1 "Marker Left Right Ahead LeftAhead RightAhead Here Home"
+    styledTextCtrlSetKeyWords ed 0 antInstr
+    styledTextCtrlSetKeyWords ed 1 antConds
     set ed [on stcEvent := updateLabels ed 0]
     return ed
 
@@ -249,4 +247,13 @@ afa2ant s =
     case validate $ parseAssembler s of
       Left e -> throw e
       Right a -> show . Ant . assemble $ a
+
+antInstr = "Sense Mark Unmark PickUp Drop Turn Move Flip"
+antConds = "Marker Here Ahead LeftAhead RightAhead Friend Foe FriendWithFood FoeWithFood Food Rock FoeMarker Home FoeHome Left Right"
+
+afaInstr = "NOP JUMP GOTO OR " ++ map toUpper antInstr
+afaConds = map toUpper antConds
+
+aslInstr = "function if else while break times && || ! Nop " ++ antInstr
+aslConds = "true " ++ antConds
 
