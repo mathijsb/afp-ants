@@ -151,9 +151,10 @@ clear es s = mapM_ (\s -> setText es s "" >>
 
 setText :: Editors -> (Editors -> Editor) -> String -> IO ()
 setText eds sel s = do 
+    ro <- styledTextCtrlGetReadOnly (sel eds)
     styledTextCtrlSetReadOnly (sel eds) False
     styledTextCtrlSetText (sel eds) s
-    styledTextCtrlSetReadOnly (sel eds) True
+    styledTextCtrlSetReadOnly (sel eds) ro
 
 getText :: Editors -> (Editors -> Editor) -> IO String
 getText eds sel = styledTextCtrlGetText (sel eds)
