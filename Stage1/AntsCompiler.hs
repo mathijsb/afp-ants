@@ -81,7 +81,7 @@ antsAlgebra = (compileProgram,
 
 		compileExpressionNot expr st = do
 			labelEnd <- uniqueLabel "NOT"
-			liftM (++ [ALabel1 labelEnd]) $ expr st {failDestination = ALabel labelEnd}
+			liftM (++ [jumpOrGoto . failDestination $ st, ALabel1 labelEnd]) $ expr st {failDestination = ALabel labelEnd}
 
 		compileExpressionBool _ st = return []
 
