@@ -17,6 +17,7 @@ extra-source-files:  IDE/wxcext.cpp
                      combined.asl
                      combined.afa
                      combined.ant
+                     README
 
 library
   Exposed-Modules:     Stage1.AntsBase

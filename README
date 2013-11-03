@@ -1,0 +1,11 @@
+Included files / directories:
+
+stage1/ 			Contains the Ant Scripting Language (ASL) compiler
+stage2/ 			Contains the Assembler For Ants (AFA) assembler.
+IDE/				An IDE for Ant Scripting Language.
+
+combined.asl        Ant Scripting Language code for Ant submitted for competition.
+combined.afa        Assembler for Ants code for Ant submitted for competition.
+combined.ant        Ant submitted for competition.
+
+presentation.pdf    Presentation.
