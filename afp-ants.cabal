@@ -13,6 +13,10 @@ extra-tmp-files:     libwxcext.a
 extra-source-files:  IDE/wxcext.cpp
                      AntEditor.buildinfo.in
                      configure
+                     presentatie.pdf
+                     combined.asl
+                     combined.afa
+                     combined.ant
 
 library
   Exposed-Modules:     Stage1.AntsBase
