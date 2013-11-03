@@ -62,6 +62,8 @@ sim: $(COMMON_DEPS) $(SIM_DEPS)
 	ghc $(GHC_FLAGS) Ants -o $@
 
 asc: $(COMMON_DEPS) $(STAGE1_DEPS)
+	alex Stage1/AntsLexer.x
+	happy Stage1/AntsParser.y
 	ghc $(GHC_FLAGS) -main-is Stage1.Ants $(STAGE1_PATH)/Ants.hs -o $@
 
 afa: $(COMMON_DEPS) $(STAGE2_DEPS)
