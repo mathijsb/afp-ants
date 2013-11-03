@@ -5,6 +5,7 @@ module Stage1.AntsLexer (lexAntsString) where
 import System.IO
 import Control.Monad
 import Stage1.AntsBase
+import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNumber(..))
 
 }
 
@@ -21,6 +22,7 @@ tokens :-
   -- Whitespace & comments.
   $white+							;
   "--".*							;
+  "//".*              ;
 
   function        { \s -> TokenFunction }
   \{              { \s -> TokenBraceLeft }
@@ -46,13 +48,13 @@ tokens :-
   break           { \s -> TokenBreak }
   true            { \s -> TokenTrue }
 
-  Left            { \s -> TokenLeft }
-  Right           { \s -> TokenRight }
+  Left            { \s -> (TokenDirection IsLeft) }
+  Right           { \s -> (TokenDirection IsRight) }
 
-  Here            { \s -> TokenHere }
-  Ahead           { \s -> TokenAhead }
-  LeftAhead       { \s -> TokenLeftAhead }
-  RightAhead      { \s -> TokenRightAhead }
+  Here            { \s -> TokenSenseDirection Here }
+  Ahead           { \s -> TokenSenseDirection Ahead }
+  LeftAhead       { \s -> TokenSenseDirection LeftAhead }
+  RightAhead      { \s -> TokenSenseDirection RightAhead }
 
   Friend                { \s -> TokenFriend }
   Foe                   { \s -> TokenFoe }
