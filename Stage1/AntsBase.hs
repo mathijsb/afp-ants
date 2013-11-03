@@ -48,13 +48,8 @@ data AntsToken =
 	TokenIdentifier Ident 	|
 	TokenInteger Int        |
 
-	TokenLeft               |
-	TokenRight 				|
-
-	TokenHere				|
-	TokenAhead				|
-	TokenLeftAhead			|
-	TokenRightAhead			|
+	TokenDirection LeftOrRight      |
+	TokenSenseDirection SenseDir |
 
 	TokenFriend				|
 	TokenFoe				|
@@ -77,7 +72,7 @@ data AntsToken =
 	TokenFlip				|
 	TokenNop 				
 
-	deriving (Eq,Show)
+	deriving (Show)
 
 ------------------------------------------
 -- Data structure for Ants language

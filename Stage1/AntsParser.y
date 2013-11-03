@@ -36,13 +36,8 @@ import Common.Simulator (SenseDir(..), LeftOrRight(..), Condition(..), MarkerNum
 
   comparison        { TokenComparison $$ }
 
-  Here              { TokenHere }
-  Ahead             { TokenAhead }
-  LeftAhead         { TokenLeftAhead }
-  RightAhead        { TokenRightAhead }
-
-  Left              { TokenLeft } 
-  Right             { TokenRight }
+  SenseDirection    { TokenSenseDirection $$ }
+  Direction         { TokenDirection $$ }
 
   Friend 			      { TokenFriend }
   Foe 				      { TokenFoe }
@@ -116,9 +111,9 @@ function_args : {- empty -}                      { [] }
 function_arg : Int                            { Value $1}
              | Ident                          { Var $1 }                    
 
-command : Sense sense_direction condition       { Sense $2 $3 }
+command : Sense SenseDirection condition       { Sense $2 $3 }
               | Move                            { Move }
-              | Turn direction                  { Turn $2 }
+              | Turn Direction                  { Turn $2 }
               | Mark Int                        { Mark $2 }
               | Unmark Int                      { Unmark $2 }
               | PickUp                          { PickUp }
@@ -137,15 +132,6 @@ condition : Friend                           { Friend }
           | FoeMarker                        { FoeMarker }
           | Home                             { Home }
           | FoeHome                          { FoeHome }
-
-direction : Left                             { IsLeft }
-          | Right                            { IsRight }
-
-sense_direction : Here                             { Here }
-                | Ahead                            { Ahead }
-                | LeftAhead                        { LeftAhead }
-                | RightAhead                       { RightAhead }
-
 
 {
 
