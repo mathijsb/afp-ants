@@ -1,19 +1,19 @@
 function main()
 {
-    -- Perform general task for layer 6.
+    // Perform general task for layer 6.
     dispatchLayer(6)
     
-    -- %TODO: we might need some NOPs here, if the Ants escape too slow.
+    // %TODO: we might need some NOPs here, if the Ants escape too slow.
     times(i, 3) { Nop }
     
-    -- Perform general task for layer 5.
+    // Perform general task for layer 5.
     dispatchLayer(5)
     
-    -- %TODO: we might need some NOPs here, if the Ants escape too slow.
+    // %TODO: we might need some NOPs here, if the Ants escape too slow.
     times(i, 3) { Nop }
 
-    -- Perform general task for layer 4, except for the corners and their
-    -- clockwise neighbours, which have a special purpose. %TODO: no longer general tasks for 4.
+    // Perform general task for layer 4, except for the corners and their
+    // clockwise neighbours, which have a special purpose. %TODO: no longer general tasks for 4.
     orientOuter()
     if (!Sense Ahead Friend)
     {
@@ -23,20 +23,20 @@ function main()
             Nop
             if (Sense LeftAhead Marker(5))
             {
-                --
-                -- Back right defender
-                --
-                -- --> -->
-                -- -->
-                -- ==> -->
-                --
+                //
+                // Back right defender
+                //
+                // //> //>
+                // //>
+                // ==> //>
+                //
                 ensureMove()
                 while(!Sense Ahead Marker(5)) {}
                 defendBackR()
             }
             else
             {
-                -- Gather collected food as a special case.
+                // Gather collected food as a special case.
                 ensureMove()
                 ensureMove()
                 gatherCollectedFood()
@@ -44,13 +44,13 @@ function main()
         }
         else
         {
-            --
-            -- Front right defender
-            --
-            -- --> -->
-            -- -->
-            -- --> ==>
-            --
+            //
+            // Front right defender
+            //
+            // //> //>
+            // //>
+            // //> ==>
+            //
             Mark 5
             Nop
             Unmark 5
@@ -63,9 +63,9 @@ function main()
             defendFrontR()
         }
     }
-    times(i, 10) { Nop } -- %TODO: how many times? 10 is at least enough
+    times(i, 10) { Nop } // %TODO: how many times? 10 is at least enough
     
-    -- Initialize layer 3 for fully defensive purposes.
+    // Initialize layer 3 for fully defensive purposes.
     orientOuter()
     if (!Sense Ahead Friend)
     {
@@ -85,7 +85,7 @@ function main()
             defendCenter()
         }
     }
-    times(i, 10) { Nop } -- %TODO: optimize (decrease while it still functions, 3 should be enough)
+    times(i, 10) { Nop } // %TODO: optimize (decrease while it still functions, 3 should be enough)
     
     orientOuter()
     if (!Sense Ahead Friend)
@@ -94,9 +94,9 @@ function main()
         defendBackL()
     }
     
-    -- Hurray! I am the only Ant left (being the center one in the ant hill).
-    -- I might need some help escaping the fortress, though.
-    -- %TODO: let this poor, poor Ant do something useful.
+    // Hurray! I am the only Ant left (being the center one in the ant hill).
+    // I might need some help escaping the fortress, though.
+    // %TODO: let this poor, poor Ant do something useful.
 
     gatherCollectedFood()
 }
@@ -170,12 +170,12 @@ function saveCollectedFood()
     Drop
 }
 
--- %TODO: implement for all non-defensive Ants
---
--- Non-returning function for each Ant, given its layer.
--- Any path in this function _MUST_ guarantee to be non-returning. If unsure,
--- add an appropriate call to 'terminate()', or use 'while(true)' constructions.
---
+// %TODO: implement for all non-defensive Ants
+//
+// Non-returning function for each Ant, given its layer.
+// Any path in this function _MUST_ guarantee to be non-returning. If unsure,
+// add an appropriate call to 'terminate()', or use 'while(true)' constructions.
+//
 function layerTask(n)
 {
     while(true)
@@ -184,10 +184,10 @@ function layerTask(n)
     }
 }
 
---
--- Sends out a layer of Ants from the ant hill by orienting them and assigning
--- their layer task.
---
+//
+// Sends out a layer of Ants from the ant hill by orienting them and assigning
+// their layer task.
+//
 function dispatchLayer(n)
 {
     orientOuter()
@@ -197,9 +197,9 @@ function dispatchLayer(n)
     }
 }
 
---
--- Continuously tries to Move, and only returns when that succeeds.
---
+//
+// Continuously tries to Move, and only returns when that succeeds.
+//
 function ensureMove()
 {
     while(!Move) {}
@@ -358,29 +358,29 @@ function turnAround()
     }
 }
 
---
--- Assuming a perfect hexagonal Ant base, orients the outer layer of Ants to
--- face outwards. After orientation, all outer layer Ants are oriented in such
--- a way that they cannot be turned Right without seeing another Ant.
---
--- All inner Ants remain in their original orientation.
---
--- Outer layer Ants can afterwards be selected by '!Sense Ahead Friend'.
---
--- This function has the same number of steps for any Ant.
---
+//
+// Assuming a perfect hexagonal Ant base, orients the outer layer of Ants to
+// face outwards. After orientation, all outer layer Ants are oriented in such
+// a way that they cannot be turned Right without seeing another Ant.
+//
+// All inner Ants remain in their original orientation.
+//
+// Outer layer Ants can afterwards be selected by '!Sense Ahead Friend'.
+//
+// This function has the same number of steps for any Ant.
+//
 function orientOuter() {
-    -- Stabilize environment
+    // Stabilize environment
     Nop
     
-    -- Turn each Ant such that it does not face outwards.
+    // Turn each Ant such that it does not face outwards.
     if (!Sense Ahead Friend) {
         times(i, 3) { Turn Left }
     } else {
         times(i, 3) { Nop }
     }
     
-    -- Turn each outer Ant just outwards.
+    // Turn each outer Ant just outwards.
     times(i, 6)
     {
         if (Sense Ahead Friend) {
@@ -391,31 +391,31 @@ function orientOuter() {
     }    
 }
 
---Collector ant
---the goal of this ant is to gather food
+//Collector ant
+//the goal of this ant is to gather food
 
 function mainExplore() { 
 	
-	--Leave the anthill
+	//Leave the anthill
 	while(Sense Here Home) { turnMoveCell() }
 	
-	--Explore the world, while marking the way home
+	//Explore the world, while marking the way home
 	while(!Sense Here Food) {explore()}
 	
-	--Explore further by random walking, until food or home is found
+	//Explore further by random walking, until food or home is found
 	while(!Sense Here Food && !Sense Here Home){moveCell()}
 	
-	--We have have arrived either back where we started from, or at food
-	--If we found food, we collect, else we end, and start over again
+	//We have have arrived either back where we started from, or at food
+	//If we found food, we collect, else we end, and start over again
 	if(Sense Here Food){collect()}
 	
 	}
 
 function explore() {
 
-	--Place markers in the order 0,1,2.
-	--Have we arrived at food? Then we stop
-	--Can't we move forward? Then we stop 
+	//Place markers in the order 0,1,2.
+	//Have we arrived at food? Then we stop
+	//Can't we move forward? Then we stop 
 
 	if(noMarkHere()) {Mark 0}
 	if(Move) { 	
@@ -434,15 +434,15 @@ function explore() {
 
 function collect() {
 
-	--We have arrived at food
-	--All we do here is pick it up
+	//We have arrived at food
+	//All we do here is pick it up
 	PickUp
 	
-	--Turn around and search for our anthill with goHome()
+	//Turn around and search for our anthill with goHome()
 	turnaround()
 	while(!Sense Here Home){goHome()}
 	
-	--Drop the food, and get ready to explore again
+	//Drop the food, and get ready to explore again
 	Drop
 	turnaround()
 	
@@ -450,15 +450,15 @@ function collect() {
 
 function goHome() {
 
---We sense what marker the ant stands on, if any.
---If we found a marker, we look around for the previous one, as this will lead us home
+//We sense what marker the ant stands on, if any.
+//If we found a marker, we look around for the previous one, as this will lead us home
 
 if(Sense Here Marker(0)){tryMoveToMarker(2)}
 else { if(Sense Here Marker(1)){ tryMoveToMarker(0)}
 	else { 
 		if(Sense Here Marker(2)){ tryMoveToMarker(1)}
 		else {	moveCell()
-				--If the ant does not stand on a marker, it walks until it does.
+				//If the ant does not stand on a marker, it walks until it does.
 				while(noMarkHere()){moveCell()}
 			}
 		}
@@ -467,7 +467,7 @@ else { if(Sense Here Marker(1)){ tryMoveToMarker(0)}
 
 function tryMoveToMarker(i) {
 
-	--this function senses around for a marker and moves to it.
+	//this function senses around for a marker and moves to it.
 	
 	if(Sense Ahead Marker(i)||Sense Ahead Home) {moveCell()}
 	else {
@@ -502,8 +502,8 @@ function noMarkHere() {
 
 function moveCell() {
 
-    -- When a move is not possible randomly turn left or right
-    -- until a move is possible
+    // When a move is not possible randomly turn left or right
+    // until a move is possible
     while (!Move) {
         if (Flip 2) {
             Turn Right
