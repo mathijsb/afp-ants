@@ -15,59 +15,40 @@ void wxStyledTextCtrl_MarginSetText(void* _obj,int pos,wxString* text)
 class firstFontEnumerator : public wxFontEnumerator
 {
 public:
-    wxString* foundFace;
-    firstFontEnumerator()
-    {
-        foundFace = NULL;
-    }
-    
-    ~firstFontEnumerator()
-    {
-        if (this->foundFace)
-        {
-            delete this->foundFace;
-        }
-    }
-    
+    wxString foundFace;
+    firstFontEnumerator() {}
+        
     virtual bool OnFacename(const wxString& facename)
     {
-        foundFace = new wxString(facename);
+        foundFace = facename;
         return false;
     }
 };
 
 wxString* find_fixed_font_face()
 {
-   firstFontEnumerator* e = new firstFontEnumerator();
+   firstFontEnumerator e;
    wxString* result = new wxString();
    // First try the system default (if defined).
-   if (e->IsValidFacename(wxString("monospace")))
+   if (e.IsValidFacename(wxString("monospace")))
    {
         *result = wxString("monospace");
-        return result;
    }
    // Mac specifics
-   if (e->IsValidFacename(wxString("Osaka")))
+   else if (e.IsValidFacename(wxString("Osaka")))
    {
         *result = wxString("Osaka");
-        return result;
    }
-   if (e->IsValidFacename(wxString("Monaco")))
+   else if (e.IsValidFacename(wxString("Monaco")))
    {
         *result = wxString("Monaco");
-        return result;
    }
    // Use whatever is available on the system.
-   e->EnumerateFacenames(wxFONTENCODING_SYSTEM, true);
-   if (e->foundFace)
-   {
-       *result = *e->foundFace;
-       delete e;
-       return result;
-   }
    else
    {
-       return result;
+       e.EnumerateFacenames(wxFONTENCODING_SYSTEM, true);
+       *result = e.foundFace;
    }
+   return result;
 }
 
